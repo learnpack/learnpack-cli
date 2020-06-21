@@ -21,16 +21,16 @@ class StartCommand extends SessionCommand {
     // get configuration object
     const config = this.configManager.get()
     // build exerises
-    configManager.buildIndex()
+    this.configManager.buildIndex()
 
     Console.debug(`Compiler: ${config.compiler}, grading: ${config.grading} ${config.disable_grading ? "(disabled)" : ""}, editor: ${config.editor}, for ${Array.isArray(config.exercises) ? config.exercises.length : 0} exercises found`)
-
-    const server = await createServer(config)
-
+    
     // download app
     const download = require('../managers/download.js')
     await download('https://raw.githubusercontent.com/breatheco-de/breathecode-ide/master/dist/app.tar.gz', config.configPath.base+'/_app/app.tar.gz')
-
+    
+    const server = await createServer(config)
+    
     // listen to socket commands
     // socket.start(config, server)
     // socket.on("gitpod-open", (data) => {

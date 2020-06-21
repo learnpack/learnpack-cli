@@ -26,21 +26,21 @@ module.exports = function(url, dest) {
 
   return new Promise((resolve, reject) => {
 
-        const file = fs.createWriteStream(dest);
-        request.get(url)
+      const file = fs.createWriteStream(dest);
+      request.get(url)
           .on('error', function(err) {
-              fs.unlink(dest);
-              return reject(err);
-          })
-          .pipe(file);
+                fs.unlink(dest);
+                return reject(err);
+            })
+            .pipe(file);
 
-        // close() is async, call cb after close completes
-        file.on('finish', () => {
-          Console.info("Download finished, proceeding to decompress "+dest);
-          decompress(dest, directoryPath).then(resolve).catch(reject);
-        });
+          // close() is async, call cb after close completes
+          file.on('finish', () => {
+            Console.info("Download finished, proceeding to decompress "+dest);
+            decompress(dest, directoryPath).then(resolve).catch(reject);
+          });
 
-    });
+      });
 };
 
 const decompress = (sourcePath, destinationPath) => new Promise((resolve, reject) => {

@@ -11,6 +11,7 @@
     "@oclif/command": "^1.6.1",
     "@oclif/config": "^1.15.1",
     "@oclif/plugin-help": "^3.1.0",
+    "@oclif/plugin-plugins": "^1.8.0",
     "body-parser": "^1.19.0",
     "chalk": "^4.1.0",
     "chokidar": "^3.4.0",
@@ -24,6 +25,7 @@
     "node-fetch": "^2.6.0",
     "node-persist": "^3.1.0",
     "prompts": "^2.3.2",
+    "request": "^2.88.2",
     "shelljs": "^0.8.4",
     "socket.io": "^2.3.0",
     "targz": "^1.0.1",
@@ -58,7 +60,7 @@
     "commands": "./src/commands",
     "bin": "learnpack",
     "plugins": [
-      "@oclif/plugin-help"
+      "@oclif/plugin-help", "@oclif/plugin-plugins"
     ]
   },
   "repository": "learnpack/learnpack-cli",

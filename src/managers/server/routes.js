@@ -1,5 +1,6 @@
 const Console = require('../../utils/console')
-var bodyParser = require('body-parser')
+const express = require('express')
+const bodyParser = require('body-parser')
 const socket = require('../socket.js');
 
 const withHandler = (func) => (req, res) => {
@@ -21,7 +22,7 @@ const withHandler = (func) => (req, res) => {
     }
 }
 
-module.exports = async function(app){
+module.exports = async function(app, config){
 
     app.get('/config', withHandler((req, res)=>{
         res.json(config)

@@ -29,7 +29,7 @@ const getConfigPath = () => {
 }
 
 const getExercisesPath = (base) => {
-  const possibleFileNames = ['./exercises',base+'/exercises']
+  const possibleFileNames = ['./exercises',base+'/exercises','./']
   return possibleFileNames.find(file => fs.existsSync(file)) || null
 }
 
@@ -193,7 +193,10 @@ module.exports = ({ grading, editor, disableGrading }) => {
         buildIndex: function(){
             Console.info("Building the exercise index...")
 
-            const isDirectory = source => fs.lstatSync(source).isDirectory()
+            const isDirectory = source => {
+              if(path.basename(source) === path.basename(config.dirPath)) return false
+              return fs.lstatSync(source).isDirectory()
+            }
             const getDirectories = source => fs.readdirSync(source).map(name => path.join(source, name)).filter(isDirectory)
             if (!fs.existsSync(config.configPath.base)) fs.mkdirSync(config.configPath.base)
             if (config.configPath.output && !fs.existsSync(config.configPath.output)) fs.mkdirSync(config.configPath.output)

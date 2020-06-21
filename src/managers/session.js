@@ -13,6 +13,8 @@ module.exports = {
     currentCohort: null,
     initialize: async function(){
       if(!this.sessionStarted){
+        
+        if(!this.config) throw InternalError('Configuration not found')
         if(!fs.existsSync(this.config.dirPath)) fs.mkdirSync(this.config.dirPath)
         await storage.init({ dir: `${this.config.dirPath}/.session` });
         this.sessionStarted = true;

@@ -60,7 +60,7 @@ class InitComand extends BaseCommand {
     ])
 
     const packageInfo = {
-      ...defaults,
+      ...defaults.config,
       grading: choices.grading,
       difficulty: choices.difficulty,
       duration: parseInt(choices.duration),

@@ -16,7 +16,7 @@ class SessionCommand extends BaseCommand {
     }
     async initSession(){
         if(!this.configManager) await this.buildConfig()
-
+        
         this.session = await SessionManager.get(this.configManager.get())
         if(this.session) Console.debug(`Session open for ${s.payload.email}.`)
         else Console.debug("No active session available")

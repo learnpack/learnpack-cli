@@ -12,8 +12,9 @@ class BaseCommand extends Command {
 
     // handle any error from the command
     const { flags } = this.parse(BaseCommand)
-    if(flags.debug) throw err
-    else Console.error(err.message)
+    throw err
+    // if(flags.debug) throw err
+    // else Console.error(err.message)
   }
   async init() {
     const {flags} = this.parse(BaseCommand)
