@@ -2,7 +2,7 @@
     "config": {
         "port": 3000,
         "address": "http://localhost",
-        "editor": null,
+        "editor": "gitpod",
         "dirPath": "./.learn",
         "configPath": "./learn.json",
         "outputPath": "./.learn/dist",
@@ -10,7 +10,12 @@
         "grading": "isolated",
         "exercisesPath": "./exercises",
         "webpackTemplate": null,
-        "disableGrading": false
+        "disableGrading": false,
+        "actions": [
+            "build",
+            "test",
+            "reset"
+        ]
     },
     "entries": {
         "html": "index.html",
@@ -27,7 +32,7 @@
     "configPath": {
         "config": "learn.json",
         "base": ".learn",
-        "exercises": "./",
+        "exercisesPath": "./",
         "output": ".learn/dist"
     },
     "outputPath": "./.learn/dist",
@@ -36,11 +41,27 @@
     "exercisesPath": "./exercises",
     "webpackTemplate": null,
     "disableGrading": false,
+    "actions": [
+        "build",
+        "test",
+        "reset"
+    ],
     "difficulty": "beginner",
     "duration": 1,
     "description": "",
     "title": "My Interactive Tutorial",
     "slug": "my-interactive-tutorial",
-    "session": 7520243822337698000,
-    "exercises": []
+    "session": 3478875639615502000,
+    "exercises": [
+        {
+            "slug": "01-hello-world",
+            "title": "01-hello-world",
+            "done": false,
+            "path": "01-hello-world",
+            "translations": [
+                "us"
+            ],
+            "graded": false
+        }
+    ]
 }

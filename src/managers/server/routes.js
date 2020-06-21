@@ -22,7 +22,7 @@ const withHandler = (func) => (req, res) => {
     }
 }
 
-module.exports = async function(app, config){
+module.exports = async function(app, config, exercises){
 
     app.get('/config', withHandler((req, res)=>{
         res.json(config)
@@ -38,6 +38,7 @@ module.exports = async function(app, config){
     }))
   
     app.get('/exercise/:slug/readme', withHandler((req, res) => {
+        console.log("asdasdasda")
         const readme = exercises.getReadme({ lang: req.query.lang || null, slug: req.params.slug })
         res.json(readme)
     }))

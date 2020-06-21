@@ -61,14 +61,14 @@ module.exports = ({ grading, editor, disableGrading }) => {
     }
 
     config = merge(defaults || {}, config, { grading, editor, configPath: confPath } )
-    config.configPath.exercises = getExercisesPath(confPath.base)
+    config.configPath.exercisesPath = getExercisesPath(confPath.base)
     config.configPath.output = confPath.base+"/dist"
 
     Console.debug("This is your updated configuration: ", config)
 
     if(config.editor === "gitpod") Gitpod.setup(config)
 
-    if (config.grading === 'isolated' && !config.configPath.exercises)  throw Error(`You are running with ${config.grading} grading, so make sure you have an "exercises" folder`)
+    if (config.grading === 'isolated' && !config.configPath.exercisesPath)  throw Error(`You are running with ${config.grading} grading, so make sure you have an "exercises" folder`)
 
     return {
         get: () => config,
@@ -83,6 +83,7 @@ module.exports = ({ grading, editor, disableGrading }) => {
           return data
         },
         getReadme: ({ slug=null, lang=null }) => {
+          
             if(lang == 'us') lang = null // <-- english is default, no need to append it to the file name
             if(slug){
                 const exercise = config.exercises.find(ex => ex.slug == slug)
@@ -93,7 +94,6 @@ module.exports = ({ grading, editor, disableGrading }) => {
                   if(lang) lang = null
                   if (!fs.existsSync(`${basePath}/README${lang ? "."+lang : ''}.md`)) throw ValidationError('Readme file not found for exercise: '+basePath+'/README.md')
                 }
-
                 const content = fs.readFileSync(`${basePath}/README${lang ? "."+lang : ''}.md`,"utf8")
                 const attr = frontMatter(content)
                 return attr
@@ -202,8 +202,10 @@ module.exports = ({ grading, editor, disableGrading }) => {
             if (config.configPath.output && !fs.existsSync(config.configPath.output)) fs.mkdirSync(config.configPath.output)
 
             // TODO we could use npm library front-mater to read the title of the exercises from the README.md
-            config.exercises = getDirectories(config.configPath.exercises).map((ex, i) => {
-              const slug = ex.substring(ex.indexOf('exercises'+path.sep)+10)
+            config.exercises = getDirectories(config.configPath.exercisesPath).map((ex, i) => {
+              const found = ex.indexOf(config.configPath.exercisesPath) > -1
+              const slug = found ? ex.substring(ex.indexOf(config.configPath.exercisesPath)+config.configPath.exercisesPath.length) : ex
+
               return {
                 slug, title: slug,
                 //if the exercises was on the config before I may keep the status done
@@ -233,10 +235,10 @@ module.exports = ({ grading, editor, disableGrading }) => {
         },
         watchIndex: function(onChange=null){
 
-          if(!config.configPath.exercises) throw ValidationError("No exercises directory to watch")
+          if(!config.configPath.exercisesPath) throw ValidationError("No exercises directory to watch")
 
           this.buildIndex()
-          watch(config.configPath.exercises)
+          watch(config.configPath.exercisesPath)
             .then((eventname, filename) => {
               Console.debug("Changes detected on your exercises")
               this.buildIndex()
@@ -250,7 +252,7 @@ module.exports = ({ grading, editor, disableGrading }) => {
 
           // we don't want the user to be able to manipulate the configuration path
           //delete config.configPath
-          //delete config.configPath.exercises
+          //delete config.configPath.exercisesPath
 
           fs.writeFileSync(config.configPath.config, JSON.stringify(config, null, 4))
         }

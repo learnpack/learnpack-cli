@@ -25,6 +25,15 @@ class SessionCommand extends BaseCommand {
         const {flags} = this.parse(SessionCommand)
         this.configManager = ConfigManager(flags)
     }
+    async catch(err) {
+        Console.debug("COMMAND CATCH")
+    
+        // handle any error from the command
+        const { flags } = this.parse(BaseCommand)
+        throw err
+        // if(flags.debug) throw err
+        // else Console.error(err.message)
+      }
 }
 
 SessionCommand.description = `Describe the command here

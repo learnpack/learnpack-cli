@@ -64,7 +64,10 @@
       "@oclif/plugin-help",
       "@oclif/plugin-plugins",
       "@oclif/plugin-warn-if-update-available"
-    ]
+    ],
+    "hooks": {
+      "compile": "./src/hooks/compile/myhook"
+    }
   },
   "repository": "learnpack/learnpack-cli",
   "scripts": {
