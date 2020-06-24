@@ -4,8 +4,8 @@ const SessionManager = require('../managers/session.js')
 const ConfigManager = require('../managers/config.js')
 
 class BaseCommand extends Command {
-  constructor(...args){
-    super(...args)
+  constructor(...params){
+    super(...params)
   }
   async catch(err) {
     Console.debug("COMMAND CATCH")
@@ -17,10 +17,11 @@ class BaseCommand extends Command {
     // else Console.error(err.message)
   }
   async init() {
-    const {flags} = this.parse(BaseCommand)
+    const {flags, args} = this.parse(BaseCommand)
     if(flags.debug) Console.startDebug()
     Console.debug("COMMAND INIT")
     Console.debug("These are your flags: ",flags);
+    Console.debug("These are your args: ",args);
 
     // quick fix for listening to the process termination on windows
     if (process.platform === "win32") {
@@ -41,10 +42,10 @@ class BaseCommand extends Command {
   }
 }
 
-BaseCommand.description = `Describe the command here
-...
-Extra documentation goes here
-`
+// BaseCommand.description = `Describe the command here
+// ...
+// Extra documentation goes here
+// `
 
 BaseCommand.flags = {
     ...Command.flags,

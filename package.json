@@ -63,10 +63,11 @@
     "plugins": [
       "@oclif/plugin-help",
       "@oclif/plugin-plugins",
-      "@oclif/plugin-warn-if-update-available"
+      "@oclif/plugin-warn-if-update-available",
+      "learnpack-python"
     ],
     "hooks": {
-      "compile": "./src/hooks/compile/myhook"
+      "compile": "./src/hooks/compile"
     }
   },
   "repository": "learnpack/learnpack-cli",

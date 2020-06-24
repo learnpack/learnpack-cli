@@ -50,7 +50,7 @@ module.exports = async function(app, config, exercises){
   
     app.get('/exercise/:slug', withHandler((req, res) => {
         const details = exercises.getExerciseDetails(req.params.slug)
-  
+        console.log("Exercise details: ",details.exercise)
         if(!details.exercise.graded) socket.removeAllowed("test")
         else socket.addAllowed('test')
         socket.log('ready')

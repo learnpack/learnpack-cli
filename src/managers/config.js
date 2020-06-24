@@ -129,6 +129,17 @@ module.exports = ({ grading, editor, disableGrading }) => {
             if (!exercise) throw NotFoundError('Exercise not found: '+slug)
             const basePath = exercise.path
 
+            const getLanguage = files => {
+              const hasPython = files.find(f => f.name.includes('.py'))
+              if(hasPython) return "python3"
+              const hasHTML = files.find(f => f.name.includes('index.html'))
+              const hasJS = files.find(f => f.name.includes('.js'))
+              if(hasJS && hasHTML) return "vanillajs"
+              else if(hasHTML) return "html"
+              else return "node"
+
+              return null
+            }
             const isDirectory = source => fs.lstatSync(source).isDirectory()
             const getFiles = source => fs.readdirSync(source)
                                         .map(file => ({ path: source+'/'+file, name: file}))
@@ -154,9 +165,13 @@ module.exports = ({ grading, editor, disableGrading }) => {
                                                     }
                                                     return score[f1.name] < score[f2.name] ? -1 : 1
                                                 })
-            if(config.grading === 'incremental') return { exercise,  files: getFiles('./') }
+            console.log(config.grading)
+            if(config.grading === 'incremental'){
+              const _files = getFiles("./")                            
+              return { exercise,  files: _files  }
+            } 
             else{
-               const _files = getFiles(basePath)
+              const _files = getFiles(basePath)                            
                if (!fs.existsSync(`${config.configPath.base}/resets`)) fs.mkdirSync(`${config.configPath.base}/resets`)
                if (!fs.existsSync(`${config.configPath.base}/resets/`+slug)){
                  fs.mkdirSync(`${config.configPath.base}/resets/`+slug)
@@ -167,7 +182,8 @@ module.exports = ({ grading, editor, disableGrading }) => {
                    }
                  })
                }
-               return { exercise,  files: _files }
+               const language = getLanguage(_files)
+               return { exercise,  files: _files, language }
             }
         },
         reset: (slug) => {

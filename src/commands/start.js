@@ -54,10 +54,14 @@ class StartCommand extends SessionCommand {
     // })
 
     socket.on("build", async (data) => {
-        await this.config.runHook('compile', data)
-        // const compiler = require('../../utils/config/compiler/'+config.compiler+'.js')
-        // socket.log('compiling',['Building exercise '+data.exerciseSlug])
-        // const files = exercises.getAllFiles(data.exerciseSlug)
+      socket.log('compiling',['Building exercise '+data.exerciseSlug])
+      const details = this.configManager.getExerciseDetails(data.exerciseSlug)
+
+      await this.config.runHook('action', {
+        action: 'compile',
+        socket,
+        exercise: details,
+      })
 
         // compiler({ files, socket, config })
         //   // .then(() => console.log("Finish running"))
@@ -120,7 +124,7 @@ class StartCommand extends SessionCommand {
 StartCommand.description = `Runs a small server with all the exercise instructions`
 
 StartCommand.flags = {
-  // ...SessionCommand,
+  ...SessionCommand,
   port: flags.string({char: 'p', description: 'server port' }),
   host: flags.string({char: 'h', description: 'server host' }),
   disableGrading: flags.boolean({char: 'dg', description: 'disble grading functionality', default: false }),

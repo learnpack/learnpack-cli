@@ -36,10 +36,10 @@ class SessionCommand extends BaseCommand {
       }
 }
 
-SessionCommand.description = `Describe the command here
-...
-Extra documentation goes here
-`
+// SessionCommand.description = `Describe the command here
+// ...
+// Extra documentation goes here
+// `
 
 SessionCommand.flags = {
     ...BaseCommand.flags
