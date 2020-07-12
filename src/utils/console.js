@@ -1,7 +1,7 @@
 const chalk = require("chalk")
 
 module.exports = {
-    _debug: process.env.DEBUG == 'true',
+    _debug: false,//process.env.DEBUG == 'true',
     startDebug: function(){ this._debug = true; },
     log: (msg, ...args) => console.log(chalk.gray(msg), ...args),
     error: (msg, ...args) => console.log(chalk.red('⨉ '+msg), ...args),

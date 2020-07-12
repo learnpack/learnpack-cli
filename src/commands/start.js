@@ -2,6 +2,7 @@ const {flags} = require('@oclif/command')
 const SessionCommand = require('../utils/SessionCommand')
 const Console = require('../utils/console')
 const socket = require('../managers/socket.js')
+const { download, decompress } = require('../managers/file.js')
 
 
 
@@ -25,9 +26,9 @@ class StartCommand extends SessionCommand {
 
     Console.debug(`Compiler: ${config.compiler}, grading: ${config.grading} ${config.disable_grading ? "(disabled)" : ""}, editor: ${config.editor}, for ${Array.isArray(config.exercises) ? config.exercises.length : 0} exercises found`)
     
-    // download app
-    const download = require('../managers/download.js')
-    await download('https://raw.githubusercontent.com/breatheco-de/breathecode-ide/master/dist/app.tar.gz', config.configPath.base+'/_app/app.tar.gz')
+    // download app and decompress
+    let resp = await download('https://raw.githubusercontent.com/breatheco-de/breathecode-ide/master/dist/app.tar.gz', config.configPath.base+'/app.tar.gz')
+    await decompress(`${config.configPath.base}/app.tar.gz`, `${config.configPath.base}/_app/`)
     
     const server = await createServer(config, this.configManager)
     
@@ -37,16 +38,15 @@ class StartCommand extends SessionCommand {
     //   Console.debug("Opening these files on gitpod: ", data)
     //   Gitpod.openFile(data.files)
     // })
-    // socket.on("reset", (exercise) => {
-    //   Console.debug("Reseting exercise "+exercise.exerciseSlug)
-    //   try{
-    //     exercises.reset(exercise.exerciseSlug)
-    //     socket.log('ready',['Ready to compile...'])
-    //   }
-    //   catch(error){
-    //     socket.log('error',[error.message || "There was an error reseting the exercise"])
-    //   }
-    // })
+    socket.on("reset", (exercise) => {
+      try{
+        this.configManager.reset(exercise.exerciseSlug)
+        socket.ready('Ready to compile...')
+      }
+      catch(error){
+        socket.fatal(error.message || "There was an error reseting the exercise")
+      }
+    })
     // socket.on("preview", (data) => {
     //   Console.debug("Preview triggered, removing the 'preview' action ")
     //   socket.removeAllowed("preview")
@@ -54,59 +54,32 @@ class StartCommand extends SessionCommand {
     // })
 
     socket.on("build", async (data) => {
-      socket.log('compiling',['Building exercise '+data.exerciseSlug])
-      const details = this.configManager.getExerciseDetails(data.exerciseSlug)
-
-      await this.config.runHook('action', {
+      socket.log('compiling','Building exercise '+data.exerciseSlug)
+      const stdout = await this.config.runHook('action', {
         action: 'compile',
-        socket,
-        exercise: details,
+        socket, configuration: config,
+        exercise: this.configManager.getExerciseDetails(data.exerciseSlug),
       })
-
-        // compiler({ files, socket, config })
-        //   // .then(() => console.log("Finish running"))
-        //   .catch(error => {
-        //     const message = error.message || 'There has been an uknown error'
-        //     socket.log(error.type || 'internal-error', [ message ], [], error)
-        //     Console.error(message)
-        //     Console.debug(error)
-        //   })
     })
 
-    // socket.on("run", (data) => {
-    //     const compiler = require('../../utils/config/compiler/'+config.compiler+'.js')
-    //     socket.log('compiling',['Compiling exercise '+data.exerciseSlug])
-    //     compiler({
-    //       files: exercises.getExerciseDetails(data.exerciseSlug).files,
-    //       socket: socket,
-    //       config
-    //     })
-    //     .catch(error => {
-    //       const message = error.message || 'There has been an uknown error'
-    //       socket.log(error.type || 'internal-error', [ message ], [], error)
-    //       Console.error(message)
-    //       Console.debug(error)
-    //     })
-    // })
+    socket.on("test", async (data) => {
 
-    // socket.on("test", (data) => {
-    //     socket.log('testing',['Testing your code output'])
-    //     bcTest({
-    //       files: exercises.getAllFiles(data.exerciseSlug),
-    //       socket,
-    //       config,
-    //       slug: data.exerciseSlug
-    //     })
-    //     .then(result => {
-    //       exercises.save()
-    //     })
-    //     .catch(error => {
-    //       const message = error.message || 'There has been an uknown error'
-    //       socket.log(error.type || 'internal-error', [ message ], [], error)
-    //       Console.error(message)
-    //       Console.debug(error)
-    //     })
-    // })
+        if(config.ignoreTests){
+          socket.ready('Grading is disabled on learn.json file.')
+          return true;
+        }
+
+        socket.log('testing','Testing your code output')
+
+        const stdout = await this.config.runHook('action', {
+          action: 'test',
+          socket, configuration: config,
+          exercise: this.configManager.getExerciseDetails(data.exerciseSlug),
+        })
+        this.configManager.save()
+
+        return true;
+    })
 
     // socket.on("prettify", (data) => {
     //     socket.log('prettifying',['Making your code prettier'])
@@ -130,5 +103,6 @@ StartCommand.flags = {
   disableGrading: flags.boolean({char: 'dg', description: 'disble grading functionality', default: false }),
   editor: flags.string({ char: 'e', description: '[standalone, gitpod]', options: ['standalone', 'gitpod'] }),
   grading: flags.string({ char: 'g', description: '[isolated, incremental]', options: ['isolated', 'incremental'] }),
+  debug: flags.boolean({char: 'd', description: 'debugger mode for more verbage', default: false })
 }
 module.exports = StartCommand

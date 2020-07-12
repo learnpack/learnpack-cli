@@ -65,10 +65,7 @@
       "@oclif/plugin-plugins",
       "@oclif/plugin-warn-if-update-available",
       "learnpack-python"
-    ],
-    "hooks": {
-      "compile": "./src/hooks/compile"
-    }
+    ]
   },
   "repository": "learnpack/learnpack-cli",
   "scripts": {

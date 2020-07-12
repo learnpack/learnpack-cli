@@ -64,6 +64,7 @@ module.exports = {
     reload: function(files=null, exercises=null){
       this.emit('reload', files, exercises);
     },
+    
     log: function(status, messages=[],report=[], data=null){
       this.emit('log',status,messages,[],report, data);
     },
@@ -81,5 +82,23 @@ module.exports = {
       }
 
       this.socket.emit('compiler', { action, status, logs, allowed: this.allowedActions, inputs, report, data });
+    },
+
+
+    ready: function(message){
+      this.log('ready',[message])
+    },
+    success: function(type,stdout){
+      const types = ['compiler', 'testing']
+      if(!types.includes(type)) this.fatal(`Invalid socket success type "${type}" on socket`)
+      else this.log(type+'-success', [ stdout ])
+    },
+    error: function (type, stdout){
+      console.error(stdout)
+      this.log(type, [ stdout ])
+    },
+    fatal: function(msg){
+      this.log('internal-error', [ msg ])
+      throw msg
     }
 };

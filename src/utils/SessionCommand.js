@@ -42,7 +42,8 @@ class SessionCommand extends BaseCommand {
 // `
 
 SessionCommand.flags = {
-    ...BaseCommand.flags
+    ...BaseCommand.flags,
+    debug: flags.boolean({char: 'd', description: 'debugger mode for more verbage', default: false })
 }
 
 module.exports = SessionCommand
