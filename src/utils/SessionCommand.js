@@ -2,7 +2,7 @@ const {flags} = require('@oclif/command')
 const BaseCommand = require("./BaseCommand")
 const Console = require('./console')
 const SessionManager = require('../managers/session.js')
-const ConfigManager = require('../managers/config.js')
+const ConfigManager = require('../managers/config/index.js')
 
 class SessionCommand extends BaseCommand {
     constructor(...args){
