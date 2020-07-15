@@ -2,7 +2,10 @@ module.exports = {
     config: {
         port: 3000,
         address: "http://localhost",
-        editor: null,
+        editor: {
+            mode: null, //[standalone, preview]
+            version: "app.v1"
+        },
         dirPath: './.learn',
         configPath: './learn.json',
         outputPath: './.learn/dist',

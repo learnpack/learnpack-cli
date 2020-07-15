@@ -22,20 +22,16 @@ const withHandler = (func) => (req, res) => {
     }
 }
 
-module.exports = async function(app, config, exercises){
+module.exports = async function(app, configObject, exercises){
 
+    const { config } = configObject;
     app.get('/config', withHandler((req, res)=>{
-        res.json(config)
+        res.json(configObject)
     }))
   
     app.get('/exercise', withHandler((req, res) => {
-        res.json(config.exercises)
+        res.json(configObject.exercises)
     }))
-  
-    // app.get('/readme', withHandler((req, res)=>{
-    //     const readme = exercises.getExercise(req.params.slug).getReadme(req.query.lang || null)
-    //     res.json(readme)
-    // }))
   
     app.get('/exercise/:slug/readme', withHandler((req, res) => {
         const readme = exercises.getExercise(req.params.slug).getReadme(req.query.lang || null)
@@ -68,7 +64,7 @@ module.exports = async function(app, config, exercises){
         res.end()
     }))
   
-    if(config.configPath.output) app.use('/preview', express.static(config.configPath.output))
+    if(config.outputPath) app.use('/preview', express.static(config.outputPath))
   
-    app.use('/',express.static(config.configPath.base+'/_app'))
+    app.use('/',express.static(config.dirPath+'/_app'))
 }

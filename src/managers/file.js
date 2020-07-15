@@ -1,4 +1,6 @@
 var fs = require('fs')
+let shell = require('shelljs')
+const {cli} = require('cli-ux')
 var targz = require('targz')
 let Console = require('../utils/console')
 var https = require('https')
@@ -18,6 +20,15 @@ const decompress = (sourcePath, destinationPath) => new Promise((resolve, reject
         }
     })
 })
+
+const downloadEditor = async (version, destination) => {
+  //https://raw.githubusercontent.com/breatheco-de/breathecode-ide/master/dist/app.tar.gz
+  const versions = {
+    'app.v1': 'app.tar.gz'
+  }
+  if(versions[version] === undefined) throw new Error(`Invalid editor version ${version}`)
+  return await download(`https://raw.githubusercontent.com/breatheco-de/breathecode-ide/master/dist/${versions[version]}`, destination)
+}
 
 const download = (url, dest) =>{
   Console.debug("Downloading "+url)
@@ -62,4 +73,26 @@ const download = (url, dest) =>{
   })
 }
 
-module.exports = { download, decompress }
+const clone = (repository, folder) => new Promise((resolve, reject)=>{
+  
+  cli.action.start('Cloning repository...')
+
+  Console.debug('Verifing git installation')
+  if (!shell.which('git')) {
+    reject('Sorry, this script requires git')
+  }
+
+  if (shell.exec(`git clone ${repository}`).code !== 0) {
+    reject('Error: Installation failed')
+  }
+
+  Console.debug('Cleaning installation')
+  if (shell.exec(`rm -R -f ./${folder}/.git`).code !== 0) {
+    reject('Error: removing .git directory')
+  }
+
+  resolve("Done")
+  cli.action.stop()
+})
+
+module.exports = { download, decompress, downloadEditor, clone }

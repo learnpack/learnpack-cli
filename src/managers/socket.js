@@ -88,13 +88,14 @@ module.exports = {
     ready: function(message){
       this.log('ready',[message])
     },
-    success: function(type,stdout){
+    success: function(type,stdout=''){
+      
       const types = ['compiler', 'testing']
       if(!types.includes(type)) this.fatal(`Invalid socket success type "${type}" on socket`)
       else this.log(type+'-success', [ stdout ])
     },
     error: function (type, stdout){
-      console.error(stdout)
+      console.error("Socket error: "+type, stdout)
       this.log(type, [ stdout ])
     },
     fatal: function(msg){

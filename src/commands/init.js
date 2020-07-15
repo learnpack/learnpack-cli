@@ -8,7 +8,7 @@ const eta = require("eta")
 
 const Console = require('../utils/console')
 const { ValidationError } = require('../utils/errors')
-let defaults = require('../config/defaults.js')
+let defaults = require('../managers/config/defaults.js')
 
 const path = require('path')
 

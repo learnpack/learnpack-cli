@@ -42,8 +42,8 @@ module.exports = {
       if(this.token) return true;
       else return false;
     },
-    get: async function(config=null){
-      if(config) this.config = config;
+    get: async function(configObj=null){
+      if(configObj) this.config = configObj.config;
 
       await this.sync();
       if(!this.isActive()) return null;

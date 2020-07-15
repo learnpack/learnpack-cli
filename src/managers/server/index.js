@@ -3,7 +3,8 @@ let Console = require('../../utils/console')
 const addRoutes = require('./routes.js')
 const cli = require("cli-ux").default
 
-module.exports = async function(config, exercises){
+module.exports = async function(configObj, exercises){
+    const { config } = configObj;
     var app = express()
     var server = require('http').Server(app)
     app.use(function(req, res, next) {
@@ -14,7 +15,7 @@ module.exports = async function(config, exercises){
     })
 
     // add all needed endpoints
-    await addRoutes(app, config, exercises)
+    await addRoutes(app, configObj, exercises)
 
     server.listen( config.port, function () {
         Console.success(`Exercises are running 😃 Open your browser to start practicing!`)

@@ -1,8 +1,9 @@
+const path = require("path")
 const {flags} = require('@oclif/command')
 const SessionCommand = require('../utils/SessionCommand')
 const Console = require('../utils/console')
 const socket = require('../managers/socket.js')
-const { download, decompress } = require('../managers/file.js')
+const { download, decompress, downloadEditor } = require('../managers/file.js')
 
 
 
@@ -20,17 +21,19 @@ class StartCommand extends SessionCommand {
 
     
     // get configuration object
-    const config = this.configManager.get()
+    const configObject = this.configManager.get()
+    const { config } = configObject;
+
     // build exerises
     this.configManager.buildIndex()
 
     Console.debug(`Compiler: ${config.compiler}, grading: ${config.grading} ${config.disable_grading ? "(disabled)" : ""}, editor: ${config.editor}, for ${Array.isArray(config.exercises) ? config.exercises.length : 0} exercises found`)
     
     // download app and decompress
-    let resp = await download('https://raw.githubusercontent.com/breatheco-de/breathecode-ide/master/dist/app.tar.gz', config.configPath.base+'/app.tar.gz')
-    await decompress(`${config.configPath.base}/app.tar.gz`, `${config.configPath.base}/_app/`)
+    let resp = await downloadEditor(config.editor.version, `${config.dirPath}/app.tar.gz`)
+    await decompress(`${config.dirPath}/app.tar.gz`, `${config.dirPath}/_app/`)
     
-    const server = await createServer(config, this.configManager)
+    const server = await createServer(configObject, this.configManager)
     
     // listen to socket commands
     socket.start(config, server)
@@ -54,15 +57,18 @@ class StartCommand extends SessionCommand {
     // })
 
     socket.on("build", async (data) => {
+      const exercise = this.configManager.getExercise(data.exerciseSlug)
       socket.log('compiling','Building exercise '+data.exerciseSlug)
+      console.log(exercise)
       const stdout = await this.config.runHook('action', {
         action: 'compile',
         socket, configuration: config,
-        exercise: this.configManager.getExerciseDetails(data.exerciseSlug),
+        exercise,
       })
     })
 
     socket.on("test", async (data) => {
+        const exercise = this.configManager.getExercise(data.exerciseSlug)
 
         if(config.ignoreTests){
           socket.ready('Grading is disabled on learn.json file.')
@@ -74,7 +80,7 @@ class StartCommand extends SessionCommand {
         const stdout = await this.config.runHook('action', {
           action: 'test',
           socket, configuration: config,
-          exercise: this.configManager.getExerciseDetails(data.exerciseSlug),
+          exercise,
         })
         this.configManager.save()
 

@@ -1,12 +1,12 @@
-const path = require('path')
+const p = require("path")
+const frontMatter = require('front-matter')
 const fs = require("fs")
+let Console = require('../../utils/console');
 const file = require("../file")
-
 
 module.exports = (path, position, config) => {
 
-    const found = path.indexOf(config.configPath.exercisesPath) > -1
-    const slug = found ? path.substring(path.indexOf(config.configPath.exercisesPath)+config.configPath.exercisesPath.length) : path
+    const slug = p.basename(path)
 
     if(!validateExerciseDirectoryName(slug)){
         Console.error('Exercise directory "'+slug+'" has an invalid name, it has to start with two or three digits followed by words separated by underscors or hyphen (no white spaces). e.g: 01.12-hello-world')
@@ -41,7 +41,7 @@ module.exports = (path, position, config) => {
         files: files.map(ex => ({ 
             path: path+'/'+ex, 
             name: ex, 
-            hidden: shouldBeVisible({ name: ex, path: path+'/'+ex })
+            hidden: !shouldBeVisible({ name: ex, path: path+'/'+ex })
         }))
             .sort((f1, f2) => {
                 const score = { // sorting priority
@@ -58,8 +58,7 @@ module.exports = (path, position, config) => {
             }),
         //if the exercises was on the config before I may keep the status done
         done: (Array.isArray(config.exercises) && typeof config.exercises[position] !== 'undefined' && path.substring(path.indexOf('exercises/')+10) == config.exercises[position].slug) ? config.exercises[position].done : false,
-        getReadme: function({ lang=null }){
-          
+        getReadme: function(lang=null){
             if(lang == 'us') lang = null // <-- english is default, no need to append it to the file name
             if (!fs.existsSync(`${this.path}/README${lang ? "."+lang : ''}.md`)){
                 Console.error(`Language ${lang} not found for exercise ${slug}, switching to default language`)
@@ -78,17 +77,17 @@ module.exports = (path, position, config) => {
             const content = fs.readFileSync(this.path+'/'+name)
 
             //create reset folder
-            if (!fs.existsSync(`${config.configPath.base}/resets`)) fs.mkdirSync(`${config.configPath.base}/resets`)
-            if (!fs.existsSync(`${config.configPath.base}/resets/`+this.slug)){
-                fs.mkdirSync(`${config.configPath.base}/resets/`+this.slug)
-                if (!fs.existsSync(`${config.configPath.base}/resets/${this.slug}/${name}`)){
-                    fs.writeFileSync(`${config.configPath.base}/resets/${this.slug}/${name}`, content)
+            if (!fs.existsSync(`${config.dirPath}/resets`)) fs.mkdirSync(`${config.dirPath}/resets`)
+            if (!fs.existsSync(`${config.dirPath}/resets/`+this.slug)){
+                fs.mkdirSync(`${config.dirPath}/resets/`+this.slug)
+                if (!fs.existsSync(`${config.dirPath}/resets/${this.slug}/${name}`)){
+                    fs.writeFileSync(`${config.dirPath}/resets/${this.slug}/${name}`, content)
                 }
             }
 
             return content
         },
-        saveFile: (name, content) => {
+        saveFile: function(name, content){
             if (!fs.existsSync(this.path+'/'+name)) throw Error('File not found: '+this.path+'/'+name)
             return fs.writeFileSync(this.path+'/'+name, content, 'utf8')
         },
