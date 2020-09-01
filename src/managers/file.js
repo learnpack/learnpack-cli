@@ -34,13 +34,13 @@ const download = (url, dest) =>{
       if (response.statusCode === 200) {
         const file = fs.createWriteStream(dest, { flags: 'wx' })
         file.on('finish', () => {
-          resolve()
+          resolve(true)
         })
         file.on('error', err => {
           file.close()
           if (err.code === 'EEXIST'){
             Console.debug("File already exists")
-            resolve()
+            resolve("File already exists")
           } 
           else{
             Console.debug("Error ",err.message)
@@ -92,4 +92,20 @@ const clone = (repository, folder) => new Promise((resolve, reject)=>{
   cli.action.stop()
 })
 
-module.exports = { download, decompress, downloadEditor, clone }
+const rmSync = function(path) {
+  var files = [];
+  if( fs.existsSync(path) ) {
+      files = fs.readdirSync(path);
+      files.forEach(function(file,index){
+          var curPath = path + "/" + file;
+          if(fs.lstatSync(curPath).isDirectory()) { // recurse
+              deleteFolderRecursive(curPath);
+          } else { // delete file
+              fs.unlinkSync(curPath);
+          }
+      });
+      fs.rmdirSync(path);
+  }
+};
+
+module.exports = { download, decompress, downloadEditor, clone, rmSync }

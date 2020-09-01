@@ -4,7 +4,7 @@ module.exports = {
         address: "http://localhost",
         editor: {
             mode: null, //[standalone, preview]
-            version: "v1"
+            version: null
         },
         dirPath: './.learn',
         configPath: './learn.json',

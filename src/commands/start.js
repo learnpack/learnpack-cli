@@ -10,7 +10,7 @@ const { download, decompress, downloadEditor } = require('../managers/file.js')
 // const Gitpod = require('../../utils/bcGitpod.js')
 const createServer = require('../managers/server')
 
-const { ValidationError, NotFoundError } = require('../utils/errors.js')
+const { ValidationError, InternalError } = require('../utils/errors.js')
 
 class StartCommand extends SessionCommand {
   async run() {
@@ -25,7 +25,7 @@ class StartCommand extends SessionCommand {
     // build exerises
     this.configManager.buildIndex()
 
-    Console.debug(`Compiler: ${config.compiler}, grading: ${config.grading} ${config.disable_grading ? "(disabled)" : ""}, editor: ${config.editor}, for ${Array.isArray(config.exercises) ? config.exercises.length : 0} exercises found`)
+    Console.debug(`Grading: ${config.grading} ${config.disable_grading ? "(disabled)" : ""}, editor: ${config.editor.mode} ${config.editor.version}, for ${Array.isArray(config.exercises) ? config.exercises.length : 0} exercises found`)
     
     // download app and decompress
     let resp = await downloadEditor(config.editor.version, `${config.dirPath}/app.tar.gz`)

@@ -4,11 +4,14 @@ let shell = require('shelljs')
 let Console = require('../../utils/console')
 let watch = require('../../utils/watcher')
 const Gitpod = require('../gitpod')
+const fetch = require('node-fetch');
 const { ValidationError, NotFoundError } = require('../../utils/errors.js')
 
 let defaults = require('./defaults.js')
 let exercise = require('./exercise.js')
 const merge = require('deepmerge')
+
+const { rmSync } = require('../file.js')
 /* exercise folder name standard */
 
 
@@ -25,7 +28,7 @@ const getExercisesPath = (base) => {
   return possibleFileNames.find(file => fs.existsSync(file)) || null
 }
 
-module.exports = ({ grading, editor, disableGrading }) => {
+module.exports = async ({ grading, editor, disableGrading }) => {
 
     let confPath = getConfigPath()
     Console.debug("This is the config path: ", confPath)
@@ -51,6 +54,7 @@ module.exports = ({ grading, editor, disableGrading }) => {
     })
     configObj.config.outputPath = confPath.base+"/dist"
     
+    
     Console.debug("This is your configuration object: ", { ...configObj, exercises: configObj.exercises ? configObj.exercises.map(e => e.slug) : [] })
     
     // Assign default editor mode if not set already
@@ -60,6 +64,12 @@ module.exports = ({ grading, editor, disableGrading }) => {
     
     if(configObj.config.editor.mode === "gitpod") Gitpod.setup(configObj.config)
 
+    if(configObj.config.editor.version === null){
+      const resp = await fetch('https://raw.githubusercontent.com/learnpack/coding-ide/learnpack/package.json');
+      const packageJSON = await resp.json()
+      configObj.config.editor.version = packageJSON.version || "1.0.0"
+    }
+    
     if (configObj.config.grading === 'isolated' && !configObj.config.exercisesPath){
       configObj.config.exercisesPath = getExercisesPath(confPath.base)
       if(!configObj.config.exercisesPath) throw Error(`You are running with ${configObj.config.grading} grading, so make sure you have "exercises" folder or "exercisesPath" property on the configuration file`)
@@ -68,8 +78,24 @@ module.exports = ({ grading, editor, disableGrading }) => {
       if(!fs.existsSync(configObj.config.exercisesPath)) throw Error(`You are running with ${configObj.config.grading} grading but your configured exercisesPath folder does not exist: ${configObj.config.exercisesPath}`)
     }
 
+
     return {
         get: () => configObj,
+        clean: () => {
+
+          const ignore = ['config', 'exercises', 'entries', "session"]
+
+          rmSync(configObj.config.outputPath);
+          rmSync(configObj.config.dirPath+"/_app");
+          fs.unlinkSync(configObj.config.dirPath+"/app.tar.gz");
+
+          let _new = {}
+          Object.keys(configObj).forEach(key => {
+            if(!ignore.includes(key)) _new[key] = configObj[key]
+          })
+
+          fs.writeFileSync(configObj.config.configPath, JSON.stringify(_new, null, 4))
+        },
         getExercise: (slug) => {
           const exercise = configObj.exercises.find(ex => ex.slug == slug)
           if(!exercise) throw ValidationError(`Exercise ${slug} not found`)
@@ -124,7 +150,7 @@ module.exports = ({ grading, editor, disableGrading }) => {
                throw error
             })
         },
-        save: () => {
+        save: (config=null) => {
 
           // we don't want the user to be able to manipulate the configuration path
           //delete config.configPath

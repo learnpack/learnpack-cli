@@ -23,7 +23,7 @@ class SessionCommand extends BaseCommand {
     }
     async buildConfig(){
         const {flags} = this.parse(SessionCommand)
-        this.configManager = ConfigManager(flags)
+        this.configManager = await ConfigManager(flags)
     }
     async catch(err) {
         Console.debug("COMMAND CATCH")
