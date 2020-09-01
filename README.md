@@ -19,7 +19,7 @@ $ npm install -g learnpack
 $ learnpack COMMAND
 running command...
 $ learnpack (-v|--version|version)
-learnpack/0.0.2 darwin-x64 node-v10.17.0
+learnpack/0.0.3 darwin-x64 node-v10.17.0
 $ learnpack --help [COMMAND]
 USAGE
   $ learnpack COMMAND
@@ -28,6 +28,7 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
+* [`learnpack clean`](#learnpack-clean)
 * [`learnpack download [PACKAGE]`](#learnpack-download-package)
 * [`learnpack hello`](#learnpack-hello)
 * [`learnpack help [COMMAND]`](#learnpack-help-command)
@@ -39,6 +40,21 @@ USAGE
 * [`learnpack plugins:update`](#learnpack-pluginsupdate)
 * [`learnpack publish [PACKAGE]`](#learnpack-publish-package)
 * [`learnpack start`](#learnpack-start)
+
+## `learnpack clean`
+
+Clean the configuration object
+
+```
+USAGE
+  $ learnpack clean
+
+DESCRIPTION
+  ...
+  Extra documentation goes here
+```
+
+_See code: [src/commands/clean.js](https://github.com/learnpack/learnpack-cli/blob/v0.0.3/src/commands/clean.js)_
 
 ## `learnpack download [PACKAGE]`
 
@@ -56,7 +72,7 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/download.js](https://github.com/learnpack/learnpack-cli/blob/v0.0.2/src/commands/download.js)_
+_See code: [src/commands/download.js](https://github.com/learnpack/learnpack-cli/blob/v0.0.3/src/commands/download.js)_
 
 ## `learnpack hello`
 
@@ -74,7 +90,7 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/hello.js](https://github.com/learnpack/learnpack-cli/blob/v0.0.2/src/commands/hello.js)_
+_See code: [src/commands/hello.js](https://github.com/learnpack/learnpack-cli/blob/v0.0.3/src/commands/hello.js)_
 
 ## `learnpack help [COMMAND]`
 
@@ -106,7 +122,7 @@ OPTIONS
   -h, --grading  show CLI help
 ```
 
-_See code: [src/commands/init.js](https://github.com/learnpack/learnpack-cli/blob/v0.0.2/src/commands/init.js)_
+_See code: [src/commands/init.js](https://github.com/learnpack/learnpack-cli/blob/v0.0.3/src/commands/init.js)_
 
 ## `learnpack plugins`
 
@@ -241,7 +257,7 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/publish.js](https://github.com/learnpack/learnpack-cli/blob/v0.0.2/src/commands/publish.js)_
+_See code: [src/commands/publish.js](https://github.com/learnpack/learnpack-cli/blob/v0.0.3/src/commands/publish.js)_
 
 ## `learnpack start`
 
@@ -262,5 +278,5 @@ OPTIONS
   --flags
 ```
 
-_See code: [src/commands/start.js](https://github.com/learnpack/learnpack-cli/blob/v0.0.2/src/commands/start.js)_
+_See code: [src/commands/start.js](https://github.com/learnpack/learnpack-cli/blob/v0.0.3/src/commands/start.js)_
 <!-- commandsstop -->
