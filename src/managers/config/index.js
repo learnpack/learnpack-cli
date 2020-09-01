@@ -70,14 +70,7 @@ module.exports = async ({ grading, editor, disableGrading }) => {
       configObj.config.editor.version = packageJSON.version || "1.0.0"
     }
     
-    if (configObj.config.grading === 'isolated' && !configObj.config.exercisesPath){
-      configObj.config.exercisesPath = getExercisesPath(confPath.base)
-      if(!configObj.config.exercisesPath) throw Error(`You are running with ${configObj.config.grading} grading, so make sure you have "exercises" folder or "exercisesPath" property on the configuration file`)
-    }
-    else{
-      if(!fs.existsSync(configObj.config.exercisesPath)) throw Error(`You are running with ${configObj.config.grading} grading but your configured exercisesPath folder does not exist: ${configObj.config.exercisesPath}`)
-    }
-
+    configObj.config.exercisesPath = getExercisesPath(confPath.base) || "./"
 
     return {
         get: () => configObj,
