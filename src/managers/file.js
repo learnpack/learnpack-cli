@@ -22,12 +22,9 @@ const decompress = (sourcePath, destinationPath) => new Promise((resolve, reject
 })
 
 const downloadEditor = async (version, destination) => {
-  //https://raw.githubusercontent.com/breatheco-de/breathecode-ide/master/dist/app.tar.gz
-  const versions = {
-    'app.v1': 'app.tar.gz'
-  }
-  if(versions[version] === undefined) throw new Error(`Invalid editor version ${version}`)
-  return await download(`https://raw.githubusercontent.com/breatheco-de/breathecode-ide/master/dist/${versions[version]}`, destination)
+  //https://raw.githubusercontent.com/learnpack/coding-ide/master/dist/app.tar.gz
+  //if(versions[version] === undefined) throw new Error(`Invalid editor version ${version}`)
+  return await download(`https://github.com/learnpack/coding-ide/blob/${version}/dist/app.tar.gz?raw=true`, destination)
 }
 
 const download = (url, dest) =>{

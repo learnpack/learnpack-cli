@@ -21,7 +21,10 @@ class DownloadCommand extends Command {
     else{
       const packageInfo = await resp.json()
       clone(packageInfo.repository)
-        .then(result => Console.success(`Successfully downloaded`))
+        .then(result => {
+          Console.success(`Successfully downloaded`)
+          Console.info(`You can now CD into the folder like this: $ cd ${_package}`)
+        })
         .catch(error => Console.error(error.message || error))
     }
   }

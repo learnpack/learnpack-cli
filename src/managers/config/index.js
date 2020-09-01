@@ -46,12 +46,12 @@ module.exports = ({ grading, editor, disableGrading }) => {
       throw ValidationError("No learn.json file has been found, make sure you are in the folder")
     }
 
-    configObj = merge.all([ defaults || {}, configObj, { config: { grading, configPath: confPath.config } }], {
+    configObj = merge.all([ defaults || {}, configObj, { config: { grading: grading || configObj.grading, configPath: confPath.config } }], {
       arrayMerge: (destinationArray, sourceArray, options) => sourceArray
     })
     configObj.config.outputPath = confPath.base+"/dist"
     
-    Console.debug("This is your final configuration: ", configObj)
+    Console.debug("This is your configuration object: ", { ...configObj, exercises: configObj.exercises ? configObj.exercises.map(e => e.slug) : [] })
     
     // Assign default editor mode if not set already
     if(configObj.config.editor.mode == null){
@@ -72,7 +72,7 @@ module.exports = ({ grading, editor, disableGrading }) => {
         get: () => configObj,
         getExercise: (slug) => {
           const exercise = configObj.exercises.find(ex => ex.slug == slug)
-          if(!exercise) throw new ValidationError(`Exercise ${slug} not found`)
+          if(!exercise) throw ValidationError(`Exercise ${slug} not found`)
 
           return exercise
         },
@@ -111,10 +111,10 @@ module.exports = ({ grading, editor, disableGrading }) => {
         },
         watchIndex: function(onChange=null){
 
-          if(!configObj.config.configPath.exercisesPath) throw ValidationError("No exercises directory to watch")
+          if(!configObj.config.exercisesPath) throw ValidationError("No exercises directory to watch: "+configObj.config.exercisesPath)
 
           this.buildIndex()
-          watch(configObj.config.configPath.exercisesPath)
+          watch(configObj.config.exercisesPath)
             .then((eventname, filename) => {
               Console.debug("Changes detected on your exercises")
               this.buildIndex()

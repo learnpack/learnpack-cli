@@ -16,7 +16,7 @@ class InitComand extends BaseCommand {
   async run() {
     const {flags} = this.parse(InitComand)
 
-    console.log(Object.getOwnPropertyNames(this))
+    Console.log(Object.getOwnPropertyNames(this))
 
     let choices = await prompts([
         {

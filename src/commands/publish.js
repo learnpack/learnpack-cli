@@ -4,6 +4,7 @@ const fetch = require('node-fetch');
 const SessionCommand = require('../utils/SessionCommand')
 const Console = require('../utils/console');
 const { replace } = require('node-emoji');
+const { validURL } = require("../utils/validators")
 // const BaseCommand = require('../utils/BaseCommand');
 
 class PublishCommand extends SessionCommand {
@@ -12,11 +13,16 @@ class PublishCommand extends SessionCommand {
 
     const configObject = this.configManager.get()
     if(configObject.slug === undefined || !configObject.slug) 
-      throw new Error("The package is missing a slug")
-    if(configObject.repository === undefined || !configObject.repository) 
-      throw new Error("The package is missing a repository")
+      throw new Error("The package is missing a slug (unique name identifier")
+    if(!validURL(configObject.repository)) 
+      throw new Error("The package has a missing or invalid 'repository' on the configuration file, it needs ot be a URL")
+    else{
+      const validateResp = await fetch(configObject.repository);
+      if(validateResp.status !== 200) 
+        throw new Error(`The specified repository URL on the configuration file does not exist or its private, only public repositories are allowed at the moment: ${configObject.repository}`)
+    }
     
-      const language =  configObject.config.language
+    const language =  configObject.config.language
     delete configObject.config
     delete configObject.exercises
     // start watching for file changes
@@ -36,10 +42,10 @@ class PublishCommand extends SessionCommand {
       const answer = await prompt([{
           type: 'confirm',
           name: 'create',
-          message: `Package with name ${configObject.name} does not exist, do you want to create it?`,
+          message: `Package with slug ${configObject.slug} does not exist, do you want to create it?`,
       }])
       if(answer){
-        const r = await fetch(`https://learnpack.herokuapp.com/v1/package/${configObject.name}`,{
+        const r = await fetch(`https://learnpack.herokuapp.com/v1/package/${configObject.slug}`,{
           method: 'POST',
           headers: { "Content-Type": "application/json"},
           body: JSON.stringify({

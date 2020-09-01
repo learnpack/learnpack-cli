@@ -67,6 +67,7 @@ module.exports = {
     
     log: function(status, messages=[],report=[], data=null){
       this.emit('log',status,messages,[],report, data);
+      Console.log(messages)
     },
     emit: function(action, status='ready', logs=[], inputs=[], report=[], data=null){
 
@@ -92,7 +93,10 @@ module.exports = {
       
       const types = ['compiler', 'testing']
       if(!types.includes(type)) this.fatal(`Invalid socket success type "${type}" on socket`)
-      else this.log(type+'-success', [ stdout ])
+      else{
+        if(stdout === "") this.log(type+'-success', [ "No stdout to display on the console" ])
+        else this.log(type+'-success', [ stdout ])
+      } 
     },
     error: function (type, stdout){
       console.error("Socket error: "+type, stdout)

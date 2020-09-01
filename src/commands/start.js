@@ -5,8 +5,6 @@ const Console = require('../utils/console')
 const socket = require('../managers/socket.js')
 const { download, decompress, downloadEditor } = require('../managers/file.js')
 
-
-
 // const bcPrettier = require('../../utils/bcPrettier.js')
 // const TestManager = require('../../utils/bcTest.js')
 // const Gitpod = require('../../utils/bcGitpod.js')
@@ -59,7 +57,7 @@ class StartCommand extends SessionCommand {
     socket.on("build", async (data) => {
       const exercise = this.configManager.getExercise(data.exerciseSlug)
       socket.log('compiling','Building exercise '+data.exerciseSlug)
-      console.log(exercise)
+      
       const stdout = await this.config.runHook('action', {
         action: 'compile',
         socket, configuration: config,
@@ -87,15 +85,9 @@ class StartCommand extends SessionCommand {
         return true;
     })
 
-    // socket.on("prettify", (data) => {
-    //     socket.log('prettifying',['Making your code prettier'])
-    //     bcPrettier({
-    //       config,
-    //       socket,
-    //       exerciseSlug: data.exerciseSlug,
-    //       fileName: data.fileName
-    //     })
-    // })
+
+      // start watching for file changes
+      if(flags.watch) this.configManager.watchIndex((_exercises) => socket.reload(null, _exercises));
 
   }
 }
@@ -107,6 +99,7 @@ StartCommand.flags = {
   port: flags.string({char: 'p', description: 'server port' }),
   host: flags.string({char: 'h', description: 'server host' }),
   disableGrading: flags.boolean({char: 'dg', description: 'disble grading functionality', default: false }),
+  watch: flags.boolean({char: 'w', description: 'Watch for file changes', default: false }),
   editor: flags.string({ char: 'e', description: '[standalone, gitpod]', options: ['standalone', 'gitpod'] }),
   grading: flags.string({ char: 'g', description: '[isolated, incremental]', options: ['isolated', 'incremental'] }),
   debug: flags.boolean({char: 'd', description: 'debugger mode for more verbage', default: false })
