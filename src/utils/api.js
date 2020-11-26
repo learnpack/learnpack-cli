@@ -1,7 +1,7 @@
 const Console = require('../utils/console');
 const _fetch = require('node-fetch');
 const storage = require('node-persist');
-
+const cli = require("cli-ux").default
 const HOST = "https://8000-a72835c1-5411-423b-86e2-dd8df8faab48.ws-us02.gitpod.io";
 
 const fetch = async (url, options={}) => {
@@ -22,6 +22,7 @@ const fetch = async (url, options={}) => {
 
     if(resp.status >= 200 && resp.status < 300) return await resp.json()
     else if(resp.status === 404) throw APIError("Package not found", 404)
+    else if(resp.status >= 500) throw APIError("Impossible to connect with the server", 500)
     else if(resp.status >= 400){
       const error = await resp.json()
       if(error.detail || error.error){
@@ -46,11 +47,14 @@ const fetch = async (url, options={}) => {
 const login = async (identification, password) => {
 
   try{
-    return await fetch(`${HOST}/v1/auth/token/`, {
+    cli.action.start('Looking for credentials...')
+    await cli.wait(1000)
+    const data = await fetch(`${HOST}/v1/auth/token/`, {
       body: JSON.stringify({ identification, password }),
       method: 'post'
     });
-
+    cli.action.stop('ready')
+    return data
   }
   catch(err){
     Console.error(err.message);
@@ -60,10 +64,14 @@ const login = async (identification, password) => {
 const publish = async (config) => {
 
   try{
-    return await fetch(`${HOST}/v1/package/${config.slug}`,{
+    cli.action.start('Updating package information...')
+    await cli.wait(1000)
+    const data = await fetch(`${HOST}/v1/package/${config.slug}`,{
       method: 'PUT',
       body: JSON.stringify(config)
     })
+    cli.action.stop('ready')
+    return data
   }
   catch(err){
     Console.error(err.message);
@@ -75,13 +83,65 @@ const publish = async (config) => {
 const update = async (config) => {
 
   try{
-    return await fetch(`${HOST}/v1/package/`,{
+    cli.action.start('Updating package information...')
+    await cli.wait(1000)
+    const data = await fetch(`${HOST}/v1/package/`,{
       method: 'POST',
       body: JSON.stringify(config)
     })
+    cli.action.stop('ready')
+    return data
   }
   catch(err){
     Console.error(err.message);
+    Console.debug(err);
+    throw err;
+  }
+}
+
+const getPackage = async (slug) => {
+  try{
+    cli.action.start('Downloading package information...')
+    await cli.wait(1000)
+    const data = await fetch(`${HOST}/v1/package/${slug}`)
+    cli.action.stop('ready')
+    return data
+  }
+  catch(err){
+    if(err.status == 404) Console.error(`Package ${slug} does not exist`);
+    else Console.error(`Package ${slug} does not exist`);
+    Console.debug(err);
+    throw err;
+  }
+}
+
+const getLangs = async () => {
+  try{
+    cli.action.start('Downloading language options...')
+    await cli.wait(1000)
+    const data = await fetch(`${HOST}/v1/package/language`)
+    cli.action.stop('ready')
+    return data;
+  }
+  catch(err){
+    if(err.status == 404) Console.error(`Package ${slug} does not exist`);
+    else Console.error(`Package ${slug} does not exist`);
+    Console.debug(err);
+    throw err;
+  }
+}
+
+
+const getAllPackages = async ({ lang='' }) => {
+  try{
+    cli.action.start('Downloading packages...')
+    await cli.wait(1000)
+    const data = await fetch(`${HOST}/v1/package?language=${lang}`)
+    cli.action.stop('ready')
+    return data;
+  }
+  catch(err){
+    Console.error(`Package ${slug} does not exist`);
     Console.debug(err);
     throw err;
   }
@@ -94,4 +154,4 @@ const APIError = (error, code) => {
   return _err;
 }
 
-module.exports = {login, publish, update }
+module.exports = {login, publish, update, getPackage, getLangs }

@@ -63,7 +63,7 @@ module.exports = {
       var password = await cli.prompt('What is your password?', {type: 'hide'})
 
       const data = await api.login(email, password);
-      this.start({ token: data.token, payload: data });
+      if(data) this.start({ token: data.token, payload: data });
 
     },
     sync: async function(){
