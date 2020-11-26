@@ -19,12 +19,12 @@ module.exports = async function(configObj, exercises){
 
     server.listen( config.port, function () {
         Console.success(`Exercises are running 😃 Open your browser to start practicing!`)
-        Console.success(`\n            Here is your exercises link:`)
-        if(config.editor === 'gitpod') Console.log(`            https://${config.port}-${config.address.substring(8)}`)
+        Console.success(`\n            Open the exercise on this link:`)
+        if(config.editor.mode === 'gitpod') Console.log(`            https://${config.port}-${config.address.substring(8)}`)
         else{
             Console.log(`            ${config.address}:${config.port}`)
             cli.open(`${config.address}:${config.port}`)
-        } 
+        }
       })
 
     return server

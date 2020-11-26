@@ -9,7 +9,6 @@ const { ValidationError, NotFoundError, InternalError } = require('../../utils/e
 
 let defaults = require('./defaults.js')
 let exercise = require('./exercise.js')
-const merge = require('deepmerge')
 
 const { rmSync } = require('../file.js')
 /* exercise folder name standard */
@@ -42,26 +41,25 @@ module.exports = async ({ grading, editor, disableGrading, version }) => {
       //add using id to the installation
       if(!jsonConfig.session) jsonConfig.session = Math.floor(Math.random() * 10000000000000000000)
 
-      configObj = merge(jsonConfig,{ config: { disableGrading } })
+      configObj = deepMerge(jsonConfig,{ config: { disableGrading } })
       Console.debug("Content form the configuration .json ",configObj)
     }
     else{
       throw ValidationError("No learn.json file has been found, make sure you are in the folder")
     }
 
-    configObj = merge.all([ defaults || {}, configObj, { config: { grading: grading || configObj.grading, configPath: confPath.config } }], {
-      arrayMerge: (destinationArray, sourceArray, options) => sourceArray
-    })
+    configObj = deepMerge(defaults || {}, configObj, { config: { grading: grading || configObj.grading, configPath: confPath.config } })
+    console.log("grading 1: ", configObj.config)
     configObj.config.outputPath = confPath.base+"/dist"
-    
-    
+
+
     Console.debug("This is your configuration object: ", { ...configObj, exercises: configObj.exercises ? configObj.exercises.map(e => e.slug) : [] })
-    
+
     // Assign default editor mode if not set already
     if(configObj.config.editor.mode == null){
       configObj.config.editor.mode = shell.which('gp') ? configObj.config.editor.mode = "gitpod" : "standalone"
     }
-    
+
     if(configObj.config.editor.mode === "gitpod") Gitpod.setup(configObj.config)
 
     if(version) configObj.config.editor.version = version;
@@ -70,7 +68,7 @@ module.exports = async ({ grading, editor, disableGrading, version }) => {
       const packageJSON = await resp.json()
       configObj.config.editor.version = packageJSON.version || "1.0.0";
     }
-    
+
     configObj.config.exercisesPath = getExercisesPath(confPath.base) || "./"
 
     return {
@@ -156,4 +154,24 @@ module.exports = async ({ grading, editor, disableGrading, version }) => {
           fs.writeFileSync(configObj.config.configPath, JSON.stringify(configObj, null, 4))
         }
     }
+}
+
+function deepMerge(...sources) {
+  let acc = {}
+  for (const source of sources) {
+    if (source instanceof Array) {
+      if (!(acc instanceof Array)) {
+        acc = []
+      }
+      acc = [...acc, ...source]
+    } else if (source instanceof Object) {
+      for (let [key, value] of Object.entries(source)) {
+        if (value instanceof Object && key in acc) {
+          value = deepMerge(acc[key], value)
+        }
+        if(value != undefined) acc = { ...acc, [key]: value }
+      }
+    }
+  }
+  return acc
 }

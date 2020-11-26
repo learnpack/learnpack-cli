@@ -3,6 +3,7 @@ const {flags} = require('@oclif/command')
 const SessionCommand = require('../utils/SessionCommand')
 const Console = require('../utils/console')
 const socket = require('../managers/socket.js')
+const Gitpod = require('../managers/gitpod.js')
 const { download, decompress, downloadEditor } = require('../managers/file.js')
 
 // const bcPrettier = require('../../utils/bcPrettier.js')
@@ -14,11 +15,10 @@ const { ValidationError, InternalError } = require('../utils/errors.js')
 
 class StartCommand extends SessionCommand {
   constructor(...params){
-    console.log("params", params)
     super(...params)
   }
 
-  // 🛑 IMPORTANT: 
+  // 🛑 IMPORTANT:
   // Every command that will use the configManager needs this init method
   async init() {
     const {flags} = this.parse(StartCommand)
@@ -26,9 +26,9 @@ class StartCommand extends SessionCommand {
   }
 
   async run() {
-    
+
     // const {flags} = this.parse(StartCommand)
-    
+
     // get configuration object
     const configObject = this.configManager.get()
     const { config } = configObject;
@@ -37,19 +37,21 @@ class StartCommand extends SessionCommand {
     this.configManager.buildIndex()
 
     Console.debug(`Grading: ${config.grading} ${config.disable_grading ? "(disabled)" : ""}, editor: ${config.editor.mode} ${config.editor.version}, for ${Array.isArray(config.exercises) ? config.exercises.length : 0} exercises found`)
-    
+
     // download app and decompress
     let resp = await downloadEditor(config.editor.version, `${config.dirPath}/app.tar.gz`)
     await decompress(`${config.dirPath}/app.tar.gz`, `${config.dirPath}/_app/`)
-    
+
     const server = await createServer(configObject, this.configManager)
-    
+
     // listen to socket commands
     socket.start(config, server)
-    // socket.on("gitpod-open", (data) => {
-    //   Console.debug("Opening these files on gitpod: ", data)
-    //   Gitpod.openFile(data.files)
-    // })
+
+    socket.on("gitpod-open", (data) => {
+      Console.debug("Opening these files on gitpod: ", data)
+      Gitpod.openFile(data.files)
+    })
+
     socket.on("reset", (exercise) => {
       try{
         this.configManager.reset(exercise.exerciseSlug)
@@ -68,7 +70,7 @@ class StartCommand extends SessionCommand {
     socket.on("build", async (data) => {
       const exercise = this.configManager.getExercise(data.exerciseSlug)
       socket.log('compiling','Building exercise '+data.exerciseSlug)
-      
+
       const stdout = await this.config.runHook('action', {
         action: 'compile',
         socket, configuration: config,
@@ -117,5 +119,4 @@ StartCommand.flags = {
   grading: flags.string({ char: 'g', description: '[isolated, incremental]', options: ['isolated', 'incremental'] }),
   debug: flags.boolean({char: 'd', description: 'debugger mode for more verbage', default: false })
 }
-console.log("StartCommand.flags", StartCommand.flags)
 module.exports = StartCommand
