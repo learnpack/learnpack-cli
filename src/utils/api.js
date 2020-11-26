@@ -2,8 +2,8 @@ const Console = require('../utils/console');
 const _fetch = require('node-fetch');
 const storage = require('node-persist');
 const cli = require("cli-ux").default
-const HOST = "https://8000-a72835c1-5411-423b-86e2-dd8df8faab48.ws-us02.gitpod.io";
-// const HOST = "https://learnpack.herokuapp.com";
+// const HOST = "https://8000-a72835c1-5411-423b-86e2-dd8df8faab48.ws-us02.gitpod.io";
+const HOST = "https://learnpack.herokuapp.com";
 
 const fetch = async (url, options={}) => {
 
