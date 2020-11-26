@@ -49,7 +49,6 @@ module.exports = async ({ grading, editor, disableGrading, version }) => {
     }
 
     configObj = deepMerge(defaults || {}, configObj, { config: { grading: grading || configObj.grading, configPath: confPath.config } })
-    console.log("grading 1: ", configObj.config)
     configObj.config.outputPath = confPath.base+"/dist"
 
 

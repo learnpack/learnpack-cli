@@ -1,9 +1,11 @@
 const Console = require('../utils/console');
-const fetch = require('node-fetch');
+const api = require('../utils/api');
+
 const v = require('validator');
 const { ValidationError, InternalError } = require('../utils/errors');
 const moment = require('moment');
 const fs = require('fs');
+const cli = require("cli-ux").default
 const storage = require('node-persist');
 
 module.exports = {
@@ -13,7 +15,7 @@ module.exports = {
     currentCohort: null,
     initialize: async function(){
       if(!this.sessionStarted){
-        
+
         if(!this.config) throw InternalError('Configuration not found')
         if(!fs.existsSync(this.config.dirPath)) fs.mkdirSync(this.config.dirPath)
         await storage.init({ dir: `${this.config.dirPath}/.session` });
@@ -23,7 +25,7 @@ module.exports = {
     },
     setPayload: async function(value){
       await this.initialize();
-      await storage.setItem('bc-payload', { assets_token: this.token, ...value });
+      await storage.setItem('bc-payload', { token: this.token, ...value });
       Console.debug("Payload successfuly found and set for "+value.email);
       return true;
     },
@@ -55,48 +57,18 @@ module.exports = {
     },
     login: async function(){
 
-        try{
-          var email = await cli.prompt('What is your name?')
-          if(!v.isEmail(email)) throw new ValidationError('Invalid email');
+      var email = await cli.prompt('What is your email?')
+      if(!v.isEmail(email)) throw new ValidationError('Invalid email');
 
-          var password = await cli.prompt('What is your two-factor token?', {type: 'mask'})
+      var password = await cli.prompt('What is your password?', {type: 'hide'})
 
-          let url = 'https://assets.breatheco.de/apis/credentials';
-          const resp = await fetch(url+'/auth', {
-            body: JSON.stringify({ username: email, password, user_agent: 'bc/cli' }),
-            method: 'post'
-          });
-          if(resp.status === 200){
-            const data = await resp.json();
-            this.start({ token: data.assets_token, payload: data });
-          }
-          else if(resp.status >= 400){
-            const error = await resp.json();
-            if(error.msg){
-              let m = /\{"code":(\d{3}),"msg":"(.*)"\}/gm.exec(error.msg);
-              if(m) Console.error(m[2]);
-              else{
-                let m = /"error_description":"(.*)"/gm.exec(error.msg);
-                if(m) Console.error(m[1]);
-                else{
-                  Console.error('Uknown Error');
-                  Console.debug(error.msg);
-                }
-              }
-            }
-            else Console.error(error.error_description || error.message || error);
-          }
-          else Console.debug(`Error ${resp.status}: `, await resp.json().msg);
-        }
-        catch(err){
-          Console.error(err.message);
-          Console.debug(err);
-        }
+      const data = await api.login(email, password);
+      this.start({ token: data.token, payload: data });
 
     },
     sync: async function(){
       const payload = await this.getPayload();
-      if(payload) this.token = payload.assets_token;
+      if(payload) this.token = payload.token;
     },
     start: async function({ token, payload=null }){
       if(!token) throw new Error("A token and email is needed to start a session");
@@ -105,7 +77,7 @@ module.exports = {
     },
     destroy: async function(){
         await storage.clear();
-        this.token = token;
+        this.token = null;
         Console.success('You have logged out');
     }
 };

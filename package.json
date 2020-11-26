@@ -1,7 +1,7 @@
 {
   "name": "learnpack",
   "description": "Create, sell or download and take learning amazing learning packages",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "author": "Alejandro Sanchez @alesanchezr",
   "bin": {
     "learnpack": "./bin/run"
@@ -18,6 +18,7 @@
     "chokidar": "^3.4.0",
     "cli-ux": "^5.4.6",
     "debounce": "^1.2.0",
+    "dotenv": "^8.2.0",
     "enquirer": "^2.3.6",
     "eta": "^1.2.0",
     "express": "^4.17.1",

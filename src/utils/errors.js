@@ -9,7 +9,7 @@ const uknown = {
 };
 
 const getSolution = (slug=null) => {
-  
+
   if(!slug) Console.debug(`Getting solution templates from the learnpack repository`);
   else Console.debug(`Getting solution for ${slug}`, solutions);
 
@@ -66,6 +66,13 @@ const TestingError = (error) => {
   _err.type = 'testing-error';
   return _err;
 }
+const AuthError = (error) => {
+  const message = error.message || error;
+  const _err = new Error(message);
+  _err.status = 403;
+  _err.type = 'auth-error';
+  return _err;
+}
 const InternalError = (error) => {
   const message = error.message || error;
   const _err = new Error(message);
@@ -80,4 +87,4 @@ const InternalError = (error) => {
 }
 
 getSolution();
-module.exports = { ValidationError, CompilerError, TestingError, NotFoundError, InternalError };
+module.exports = { ValidationError, CompilerError, TestingError, NotFoundError, InternalError, AuthError };
