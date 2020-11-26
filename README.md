@@ -19,7 +19,7 @@ $ npm install -g learnpack
 $ learnpack COMMAND
 running command...
 $ learnpack (-v|--version|version)
-learnpack/0.0.4 darwin-x64 node-v10.17.0
+learnpack/0.0.5 linux-x64 node-v12.19.1
 $ learnpack --help [COMMAND]
 USAGE
   $ learnpack COMMAND
@@ -33,6 +33,8 @@ USAGE
 * [`learnpack hello`](#learnpack-hello)
 * [`learnpack help [COMMAND]`](#learnpack-help-command)
 * [`learnpack init`](#learnpack-init)
+* [`learnpack login [PACKAGE]`](#learnpack-login-package)
+* [`learnpack logout [PACKAGE]`](#learnpack-logout-package)
 * [`learnpack plugins`](#learnpack-plugins)
 * [`learnpack plugins:install PLUGIN...`](#learnpack-pluginsinstall-plugin)
 * [`learnpack plugins:link PLUGIN`](#learnpack-pluginslink-plugin)
@@ -54,7 +56,7 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/clean.js](https://github.com/learnpack/learnpack-cli/blob/v0.0.4/src/commands/clean.js)_
+_See code: [src/commands/clean.js](https://github.com/learnpack/learnpack-cli/blob/v0.0.5/src/commands/clean.js)_
 
 ## `learnpack download [PACKAGE]`
 
@@ -72,7 +74,7 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/download.js](https://github.com/learnpack/learnpack-cli/blob/v0.0.4/src/commands/download.js)_
+_See code: [src/commands/download.js](https://github.com/learnpack/learnpack-cli/blob/v0.0.5/src/commands/download.js)_
 
 ## `learnpack hello`
 
@@ -90,7 +92,7 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/hello.js](https://github.com/learnpack/learnpack-cli/blob/v0.0.4/src/commands/hello.js)_
+_See code: [src/commands/hello.js](https://github.com/learnpack/learnpack-cli/blob/v0.0.5/src/commands/hello.js)_
 
 ## `learnpack help [COMMAND]`
 
@@ -118,11 +120,46 @@ USAGE
   $ learnpack init
 
 OPTIONS
-  -d, --debug    debugger mode for more verbage
   -h, --grading  show CLI help
 ```
 
-_See code: [src/commands/init.js](https://github.com/learnpack/learnpack-cli/blob/v0.0.4/src/commands/init.js)_
+_See code: [src/commands/init.js](https://github.com/learnpack/learnpack-cli/blob/v0.0.5/src/commands/init.js)_
+
+## `learnpack login [PACKAGE]`
+
+Describe the command here
+
+```
+USAGE
+  $ learnpack login [PACKAGE]
+
+ARGUMENTS
+  PACKAGE  The unique string that identifies this package on learnpack
+
+DESCRIPTION
+  ...
+  Extra documentation goes here
+```
+
+_See code: [src/commands/login.js](https://github.com/learnpack/learnpack-cli/blob/v0.0.5/src/commands/login.js)_
+
+## `learnpack logout [PACKAGE]`
+
+Describe the command here
+
+```
+USAGE
+  $ learnpack logout [PACKAGE]
+
+ARGUMENTS
+  PACKAGE  The unique string that identifies this package on learnpack
+
+DESCRIPTION
+  ...
+  Extra documentation goes here
+```
+
+_See code: [src/commands/logout.js](https://github.com/learnpack/learnpack-cli/blob/v0.0.5/src/commands/logout.js)_
 
 ## `learnpack plugins`
 
@@ -257,7 +294,7 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/publish.js](https://github.com/learnpack/learnpack-cli/blob/v0.0.4/src/commands/publish.js)_
+_See code: [src/commands/publish.js](https://github.com/learnpack/learnpack-cli/blob/v0.0.5/src/commands/publish.js)_
 
 ## `learnpack start`
 
@@ -274,9 +311,9 @@ OPTIONS
   -g, --grading=isolated|incremental  [isolated, incremental]
   -h, --host=host                     server host
   -p, --port=port                     server port
+  -v, --version=version               E.g: 1.0.1
   -w, --watch                         Watch for file changes
-  --flags
 ```
 
-_See code: [src/commands/start.js](https://github.com/learnpack/learnpack-cli/blob/v0.0.4/src/commands/start.js)_
+_See code: [src/commands/start.js](https://github.com/learnpack/learnpack-cli/blob/v0.0.5/src/commands/start.js)_
 <!-- commandsstop -->
