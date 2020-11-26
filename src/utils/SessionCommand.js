@@ -11,39 +11,25 @@ class SessionCommand extends BaseCommand {
         this.session = null
     }
 
-    async init() {
-        await this.initSession()
-    }
-    async initSession(){
-        if(!this.configManager) await this.buildConfig()
+    async initSession(flags){
+        if(!this.configManager) await this.buildConfig(flags)
         
         this.session = await SessionManager.get(this.configManager.get())
         if(this.session) Console.debug(`Session open for ${s.payload.email}.`)
         else Console.debug("No active session available")
     }
-    async buildConfig(){
-        const {flags} = this.parse(SessionCommand)
+    async buildConfig(flags){
         this.configManager = await ConfigManager(flags)
     }
     async catch(err) {
-        Console.debug("COMMAND CATCH")
-    
-        // handle any error from the command
-        const { flags } = this.parse(BaseCommand)
+        Console.debug("COMMAND CATCH", err)
         throw err
-        // if(flags.debug) throw err
-        // else Console.error(err.message)
-      }
+    }
 }
 
 // SessionCommand.description = `Describe the command here
 // ...
 // Extra documentation goes here
 // `
-
-SessionCommand.flags = {
-    ...BaseCommand.flags,
-    debug: flags.boolean({char: 'd', description: 'debugger mode for more verbage', default: false })
-}
 
 module.exports = SessionCommand

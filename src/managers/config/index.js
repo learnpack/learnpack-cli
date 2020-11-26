@@ -5,7 +5,7 @@ let Console = require('../../utils/console')
 let watch = require('../../utils/watcher')
 const Gitpod = require('../gitpod')
 const fetch = require('node-fetch');
-const { ValidationError, NotFoundError } = require('../../utils/errors.js')
+const { ValidationError, NotFoundError, InternalError } = require('../../utils/errors.js')
 
 let defaults = require('./defaults.js')
 let exercise = require('./exercise.js')
@@ -28,7 +28,7 @@ const getExercisesPath = (base) => {
   return possibleFileNames.find(file => fs.existsSync(file)) || null
 }
 
-module.exports = async ({ grading, editor, disableGrading }) => {
+module.exports = async ({ grading, editor, disableGrading, version }) => {
 
     let confPath = getConfigPath()
     Console.debug("This is the config path: ", confPath)
@@ -64,10 +64,11 @@ module.exports = async ({ grading, editor, disableGrading }) => {
     
     if(configObj.config.editor.mode === "gitpod") Gitpod.setup(configObj.config)
 
-    if(configObj.config.editor.version === null){
+    if(version) configObj.config.editor.version = version;
+    else if(configObj.config.editor.version === null){
       const resp = await fetch('https://raw.githubusercontent.com/learnpack/coding-ide/learnpack/package.json');
       const packageJSON = await resp.json()
-      configObj.config.editor.version = packageJSON.version || "1.0.0"
+      configObj.config.editor.version = packageJSON.version || "1.0.0";
     }
     
     configObj.config.exercisesPath = getExercisesPath(confPath.base) || "./"
@@ -80,7 +81,10 @@ module.exports = async ({ grading, editor, disableGrading }) => {
 
           rmSync(configObj.config.outputPath);
           rmSync(configObj.config.dirPath+"/_app");
-          fs.unlinkSync(configObj.config.dirPath+"/app.tar.gz");
+
+          // clean tag gz
+          if (fs.existsSync(configObj.config.dirPath+"/app.tar.gz"))
+            fs.unlinkSync(configObj.config.dirPath+"/app.tar.gz");
 
           let _new = {}
           Object.keys(configObj).forEach(key => {

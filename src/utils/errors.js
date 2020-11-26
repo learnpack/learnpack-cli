@@ -9,7 +9,11 @@ const uknown = {
 };
 
 const getSolution = (slug=null) => {
-  Console.debug(`Getting solution for ${slug}`, solutions);
+  
+  if(!slug) Console.debug(`Getting solution templates from the learnpack repository`);
+  else Console.debug(`Getting solution for ${slug}`, solutions);
+
+
   if(!solutions){
     Console.debug("Fetching for errors.json on github");
     fetch('https://raw.githubusercontent.com/breatheco-de/breathecode-cli/master/docs/errors/errors.json')

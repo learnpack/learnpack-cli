@@ -13,10 +13,21 @@ const createServer = require('../managers/server')
 const { ValidationError, InternalError } = require('../utils/errors.js')
 
 class StartCommand extends SessionCommand {
-  async run() {
+  constructor(...params){
+    console.log("params", params)
+    super(...params)
+  }
 
+  // 🛑 IMPORTANT: 
+  // Every command that will use the configManager needs this init method
+  async init() {
     const {flags} = this.parse(StartCommand)
+    await this.initSession(flags)
+  }
 
+  async run() {
+    
+    // const {flags} = this.parse(StartCommand)
     
     // get configuration object
     const configObject = this.configManager.get()
@@ -90,18 +101,21 @@ class StartCommand extends SessionCommand {
       if(flags.watch) this.configManager.watchIndex((_exercises) => socket.reload(null, _exercises));
 
   }
+
 }
 
 StartCommand.description = `Runs a small server with all the exercise instructions`
 
 StartCommand.flags = {
-  ...SessionCommand,
+  ...SessionCommand.flags,
   port: flags.string({char: 'p', description: 'server port' }),
   host: flags.string({char: 'h', description: 'server host' }),
   disableGrading: flags.boolean({char: 'dg', description: 'disble grading functionality', default: false }),
   watch: flags.boolean({char: 'w', description: 'Watch for file changes', default: false }),
   editor: flags.string({ char: 'e', description: '[standalone, gitpod]', options: ['standalone', 'gitpod'] }),
+  version: flags.string({ char: 'v', description: 'E.g: 1.0.1', default: null }),
   grading: flags.string({ char: 'g', description: '[isolated, incremental]', options: ['isolated', 'incremental'] }),
   debug: flags.boolean({char: 'd', description: 'debugger mode for more verbage', default: false })
 }
+console.log("StartCommand.flags", StartCommand.flags)
 module.exports = StartCommand

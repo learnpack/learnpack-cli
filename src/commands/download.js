@@ -6,6 +6,10 @@ const { askPackage } = require('../ui/download')
 // const BaseCommand = require('../utils/BaseCommand');
 
 class DownloadCommand extends Command {
+  // async init() {
+  //   const {flags} = this.parse(DownloadCommand)
+  //   await this.initSession(flags)
+  // }
   async run() {
     const {flags, args} = this.parse(DownloadCommand)
     // start watching for file changes

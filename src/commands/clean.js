@@ -2,12 +2,16 @@ const {flags} = require('@oclif/command')
 const Console = require('../utils/console')
 const SessionCommand = require('../utils/SessionCommand')
 class CleanCommand extends SessionCommand {
+  async init() {
+    const {flags} = this.parse(CleanCommand)
+    await this.initSession(flags)
+  }
   async run() {
     const {flags} = this.parse(CleanCommand)
     
     this.configManager.clean()
 
-    Console.success("JSON Configuration cleaned successfully")
+    Console.success("Package cleaned successfully, ready to publish")
   }
 }
 
