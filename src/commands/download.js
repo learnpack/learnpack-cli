@@ -17,11 +17,12 @@ class DownloadCommand extends Command {
     let _package = args.package
     if(!_package) _package = await askPackage()
 
-    if(!_package) throw Error("No package name specified")
+    if(!_package) return null
 
     try{
-      const packageInfo = api.getPackage(`https://learnpack.herokuapp.com/v1/package/${_package}`)
-      clone(packageInfo.repository)
+      const packageInfo = await api.getAllPackages({ slug: _package })
+      if(packageInfo.results.length == 0) Console.error(`Package ${_package} not found`)
+      else clone(packageInfo.results[0].repository)
         .then(result => {
           Console.success(`Successfully downloaded`)
           Console.info(`You can now CD into the folder like this: $ cd ${_package}`)

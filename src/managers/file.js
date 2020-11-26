@@ -27,7 +27,7 @@ const downloadEditor = async (version, destination) => {
   //if(versions[version] === undefined) throw new Error(`Invalid editor version ${version}`)
   const resp2 = await fetch(`https://github.com/learnpack/coding-ide/blob/${version}/dist`)
   if(!resp2.ok) throw InternalError(`Coding Editor v${version} was not found on learnpack repository, check the config.editor.version property on learn.json`)
-  
+
   return await download(`https://github.com/learnpack/coding-ide/blob/${version}/dist/app.tar.gz?raw=true`, destination)
 }
 
@@ -45,7 +45,7 @@ const download = (url, dest) =>{
           if (err.code === 'EEXIST'){
             Console.debug("File already exists")
             resolve("File already exists")
-          } 
+          }
           else{
             Console.debug("Error ",err.message)
             fs.unlink(dest, () => reject(err.message)) // Delete temp file
@@ -74,26 +74,32 @@ const download = (url, dest) =>{
   })
 }
 
-const clone = (repository, folder) => new Promise((resolve, reject)=>{
-  
-  cli.action.start('Cloning repository...')
+const clone = (repository=null, folder='./') => new Promise((resolve, reject)=>{
 
-  Console.debug('Verifing git installation')
+  if(!repository){
+    reject("Missing repository url for this package")
+    return false
+  }
+
+  cli.action.start('Verifying GIT...')
   if (!shell.which('git')) {
     reject('Sorry, this script requires git')
   }
+  cli.action.stop()
 
+  cli.action.start(`Cloning repository ${repository}...`)
   if (shell.exec(`git clone ${repository}`).code !== 0) {
     reject('Error: Installation failed')
   }
+  cli.action.stop()
 
-  Console.debug('Cleaning installation')
+  cli.action.start('Cleaning installation...')
   if (shell.exec(`rm -R -f ./${folder}/.git`).code !== 0) {
     reject('Error: removing .git directory')
   }
+  cli.action.stop()
 
   resolve("Done")
-  cli.action.stop()
 })
 
 const rmSync = function(path) {

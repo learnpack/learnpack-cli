@@ -11,7 +11,6 @@ const askPackage = () => new Promise(async (resolve, reject) => {
         return null;
     }
     let packages = []
-    console.log("langs ", languages)
     prompt([{
             type: 'select',
             name: 'lang',
@@ -20,13 +19,13 @@ const askPackage = () => new Promise(async (resolve, reject) => {
         }])
         .then(({ lang }) => {
             return (async() => {
-                const packages = await apis.getAllPackages(lang)
+                const response = await api.getAllPackages({ lang })
+                const packages = response.results
                 if(packages.length === 0){
                     const error = new Error(`No packages found for language ${lang}`)
                     Console.error(error)
                     return error
                 }
-
                 return await prompt([{
                     type: 'select',
                     name: 'pack',

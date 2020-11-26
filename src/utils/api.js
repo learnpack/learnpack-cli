@@ -2,8 +2,8 @@ const Console = require('../utils/console');
 const _fetch = require('node-fetch');
 const storage = require('node-persist');
 const cli = require("cli-ux").default
-// const HOST = "https://8000-a72835c1-5411-423b-86e2-dd8df8faab48.ws-us02.gitpod.io";
-const HOST = "https://learnpack.herokuapp.com";
+const HOST = "https://8000-a72835c1-5411-423b-86e2-dd8df8faab48.ws-us02.gitpod.io";
+// const HOST = "https://learnpack.herokuapp.com";
 
 const fetch = async (url, options={}) => {
 
@@ -133,11 +133,11 @@ const getLangs = async () => {
 }
 
 
-const getAllPackages = async ({ lang='' }) => {
+const getAllPackages = async ({ lang='', slug='' }) => {
   try{
     cli.action.start('Downloading packages...')
     await cli.wait(1000)
-    const data = await fetch(`${HOST}/v1/package?language=${lang}`)
+    const data = await fetch(`${HOST}/v1/package/all?language=${lang}&slug=${slug}`)
     cli.action.stop('ready')
     return data;
   }
@@ -155,4 +155,4 @@ const APIError = (error, code) => {
   return _err;
 }
 
-module.exports = {login, publish, update, getPackage, getLangs }
+module.exports = {login, publish, update, getPackage, getLangs, getAllPackages }
