@@ -69,13 +69,15 @@ class StartCommand extends SessionCommand {
 
     socket.on("build", async (data) => {
       const exercise = this.configManager.getExercise(data.exerciseSlug)
-      socket.log('compiling','Building exercise '+data.exerciseSlug)
+      socket.log('compiling','Building exercise '+data.exerciseSlug+'...')
 
       const stdout = await this.config.runHook('action', {
         action: 'compile',
         socket, configuration: config,
         exercise,
       })
+
+      
     })
 
     socket.on("test", async (data) => {

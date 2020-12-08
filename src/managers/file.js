@@ -109,7 +109,7 @@ const rmSync = function(path) {
       files.forEach(function(file,index){
           var curPath = path + "/" + file;
           if(fs.lstatSync(curPath).isDirectory()) { // recurse
-              deleteFolderRecursive(curPath);
+              rmSync(curPath);
           } else { // delete file
               fs.unlinkSync(curPath);
           }
