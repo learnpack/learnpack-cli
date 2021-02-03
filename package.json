@@ -65,7 +65,6 @@
     "plugins": [
       "@oclif/plugin-help",
       "@oclif/plugin-plugins",
-      "learnpack-node",
       "@oclif/plugin-warn-if-update-available"
     ]
   },
