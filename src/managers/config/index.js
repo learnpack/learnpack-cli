@@ -125,8 +125,10 @@ module.exports = async ({ grading, editor, disableGrading, version }) => {
             // add the outout folder where webpack will publish the the html/css/js files
             if (configObj.config.outputPath && !fs.existsSync(configObj.config.outputPath)) fs.mkdirSync(configObj.config.outputPath)
 
-            // TODO we could use npm library front-mater to read the title of the exercises from the README.md
-            configObj.exercises = getDirectories(configObj.config.exercisesPath).map((path, position) => exercise(path, position, configObj.config))
+            // TODO: we could use npm library front-mater to read the title of the exercises from the README.md
+            const grupedByDirectory = getDirectories(configObj.config.exercisesPath);
+            if(grupedByDirectory.length > 0) configObj.exercises = grupedByDirectory.map((path, position) => exercise(path, position, configObj.config));
+            else configObj.exercises = [exercise(configObj.config.exercisesPath, 0, configObj.config)]
             this.save()
         },
         watchIndex: function(onChange=null){

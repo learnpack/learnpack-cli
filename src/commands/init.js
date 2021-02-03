@@ -26,6 +26,7 @@ class InitComand extends BaseCommand {
           choices: [
             { title: 'Incremental: Build on top of each other like a tutorial', value: 'incremental' },
             { title: 'Isolated: Small separated exercises', value: 'isolated' },
+            { title: 'No grading: No feedback or testing whatsoever', value: null },
           ],
         },{
           type: 'text',

@@ -6,8 +6,8 @@ const file = require("../file")
 
 module.exports = (path, position, config) => {
 
-    const slug = p.basename(path)
-
+    let slug = p.basename(path)
+    
     if(!validateExerciseDirectoryName(slug)){
         Console.error('Exercise directory "'+slug+'" has an invalid name, it has to start with two or three digits followed by words separated by underscors or hyphen (no white spaces). e.g: 01.12-hello-world')
         Console.help('Verify that the folder "'+slug+'" starts with a number and it does not contain white spaces or weird characters.')
@@ -19,20 +19,21 @@ module.exports = (path, position, config) => {
     
     /**
      * build the translation array like:
-        {
-            "us": "path/to/Readme.md",
-            "es": "path/to/Readme.es.md"
+     {
+         "us": "path/to/Readme.md",
+         "es": "path/to/Readme.es.md"
         }
-     */
-    var translations = {}
-    files.filter(file => file.toLowerCase().includes('readme')).forEach(file => {
-        const parts = file.split('.')
-        if(parts.length === 3) translations[parts[1]] = file
-        else translations["us"] = file
-    })
-
-    // get the coding language
-
+        */
+       var translations = {}
+       files.filter(file => file.toLowerCase().includes('readme')).forEach(file => {
+           const parts = file.split('.')
+           if(parts.length === 3) translations[parts[1]] = file
+           else translations["us"] = file
+        })
+        
+        // if the slug is a dot, it means there is not "exercises" folder, and its just a single README.md
+        if(slug == ".") slug = "single";
+        
     return {
         position, path, slug, translations, 
         language: getLanguage(files),
@@ -103,6 +104,7 @@ module.exports = (path, position, config) => {
 }
 
 const validateExerciseDirectoryName = (str) => {
+    if(str = "./") return true;
     const regex = /^\d{2,3}(?:\.\d{1,2}?)?-[a-zA-z](?:-|_?[0-9a-zA-z]*)*$/
     return regex.test(str)
 }
@@ -113,6 +115,8 @@ const shouldBeVisible = function(file){
         (file.name.toLocaleLowerCase().indexOf('test.') == -1 && file.name.toLocaleLowerCase().indexOf('tests.') == -1 && file.name.toLocaleLowerCase().indexOf('.hide.') == -1 &&
         // ignore java compiled files
         (file.name.toLocaleLowerCase().indexOf('.class') == -1) &&
+        // ignore learn.json and bc.json
+        (file.name.toLocaleLowerCase().indexOf('learn.json') == -1) && (file.name.toLocaleLowerCase().indexOf('bc.json') == -1) &&
         // readmes and directories
         !file.name.toLowerCase().includes("readme.") && !isDirectory(file.path) && file.name.indexOf('_') != 0)
     );
@@ -128,9 +132,12 @@ const getLanguage = (files) => {
     if(hasPython) return "python3"
     const hasJava = files.find(f => f.includes('.java'))
     if(hasJava) return "java"
+
     const hasHTML = files.find(f => f.includes('index.html'))
     const hasJS = files.find(f => f.includes('.js'))
     if(hasJS && hasHTML) return "vanillajs"
     else if(hasHTML) return "html"
-    else return "node"
+    else if(hasJS) return "node"
+
+    return "markdown";
 }
