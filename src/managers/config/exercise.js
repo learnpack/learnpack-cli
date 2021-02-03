@@ -109,6 +109,11 @@ const validateExerciseDirectoryName = (str) => {
     return regex.test(str)
 }
 
+const notImage = (str) => {
+    return (str.toLocaleLowerCase().indexOf('.png') == -1) && (str.toLocaleLowerCase().indexOf('.gif') == -1) &&
+    (str.toLocaleLowerCase().indexOf('.jpg') == -1) && (str.toLocaleLowerCase().indexOf('.jpeg') == -1)
+}
+
 const shouldBeVisible = function(file){
     return (
         // ignore tests files and files with ".hide" on their name
@@ -117,6 +122,8 @@ const shouldBeVisible = function(file){
         (file.name.toLocaleLowerCase().indexOf('.class') == -1) &&
         // ignore learn.json and bc.json
         (file.name.toLocaleLowerCase().indexOf('learn.json') == -1) && (file.name.toLocaleLowerCase().indexOf('bc.json') == -1) &&
+        // ignore images
+        notImage(file.name) &&
         // readmes and directories
         !file.name.toLowerCase().includes("readme.") && !isDirectory(file.path) && file.name.indexOf('_') != 0)
     );

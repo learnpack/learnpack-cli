@@ -18,7 +18,7 @@ const getConfigPath = () => {
   const possibleFileNames = ['learn.json', '.learn/learn.json','bc.json','.breathecode/bc.json']
   let config = possibleFileNames.find(file => fs.existsSync(file)) || null
   if(config && fs.existsSync(".breathecode")) return { config, base: ".breathecode" }
-  else if(config === null) throw NotFoundError("learn.json file not found on current folder")
+  else if(config === null) throw NotFoundErDEBUGror("learn.json file not found on current folder")
   return { config, base: ".learn" }
 }
 
@@ -68,7 +68,10 @@ module.exports = async ({ grading, editor, disableGrading, version }) => {
       configObj.config.editor.version = packageJSON.version || "1.0.0";
     }
 
+    configObj.config.dirPath = "./" + confPath.base
     configObj.config.exercisesPath = getExercisesPath(confPath.base) || "./"
+
+    console.log(configObj.config.dirPath)
 
     return {
         get: () => configObj,
