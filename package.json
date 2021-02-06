@@ -1,7 +1,7 @@
 {
   "name": "learnpack",
   "description": "Create, sell or download and take learning amazing learning packages",
-  "version": "0.0.76",
+  "version": "0.0.77",
   "author": "Alejandro Sanchez @alesanchezr",
   "bin": {
     "learnpack": "./bin/run"
@@ -65,9 +65,6 @@
     "plugins": [
       "@oclif/plugin-help",
       "@oclif/plugin-plugins",
-      "learnpack-html",
-      "learnpack-node",
-      "learnpack-python",
       "@oclif/plugin-warn-if-update-available"
     ]
   },
