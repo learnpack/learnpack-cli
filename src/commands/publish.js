@@ -24,21 +24,17 @@ class PublishCommand extends SessionCommand {
     if(configObject.slug === undefined || !configObject.slug)
       throw new Error("The package is missing a slug (unique name identifier), please check your learn.json file and make sure it has a 'slug'")
     if(!validURL(configObject.repository))
-      throw new Error("The package has a missing or invalid 'repository' on the configuration file, it needs ot be a URL")
+      throw new Error("The package has a missing or invalid 'repository' on the configuration file, it needs to be a Github URL")
     else{
       const validateResp = await fetch(configObject.repository);
       if(validateResp.status !== 200)
         throw new Error(`The specified repository URL on the configuration file does not exist or its private, only public repositories are allowed at the moment: ${configObject.repository}`)
     }
 
-    const language =  configObject.config.language
-    delete configObject.config
-    delete configObject.exercises
     // start watching for file changes
     try{
       const data = await api.publish({
         ...configObject,
-        language,
         author: this.session.payload.user_id
       });
       Console.success(`Package updated and published successfully: ${configObject.slug}`)
@@ -52,7 +48,6 @@ class PublishCommand extends SessionCommand {
         if(answer){
           const data2 = await api.update({
               ...configObject,
-              language,
               author: this.session.payload.user_id
           })
           Console.success(`Package created and published successfully: ${configObject.slug}`)

@@ -16,7 +16,13 @@ class PublishCommand extends SessionCommand {
   async run() {
     const {flags, args} = this.parse(PublishCommand)
 
-    SessionManager.login();
+    try{
+      await SessionManager.login();
+    }
+    catch(error){
+      Console.error("Error trying to authenticate")
+      Console.error(error.message || error)
+    }
   }
 }
 

@@ -30,7 +30,10 @@ const askPackage = () => new Promise(async (resolve, reject) => {
                     type: 'select',
                     name: 'pack',
                     message: 'Choose one of the packages available',
-                    choices: packages.map(l => ({ message: l.title, name: l.slug })),
+                    choices: packages.map(l => ({ 
+                        message: `${l.title}, difficulty: ${l.difficulty}, downloads: ${l.downloads} ${l.skills.length > 0 ? `(Skills: ${l.skills.join(",")})` : ""}`, 
+                        name: l.slug 
+                    })),
                 }])
             })()
         })

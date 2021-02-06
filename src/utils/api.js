@@ -2,7 +2,7 @@ const Console = require('../utils/console');
 const _fetch = require('node-fetch');
 const storage = require('node-persist');
 const cli = require("cli-ux").default
-// const HOST = "https://8000-a72835c1-5411-423b-86e2-dd8df8faab48.ws-us02.gitpod.io";
+// const HOST = "https://8000-a72835c1-5411-423b-86e2-dd8df8faab48.ws-us03.gitpod.io";
 const HOST = "https://learnpack.herokuapp.com";
 
 const fetch = async (url, options={}) => {
@@ -22,6 +22,7 @@ const fetch = async (url, options={}) => {
     })
 
     if(resp.status >= 200 && resp.status < 300) return await resp.json()
+    else if(resp.status === 401) throw APIError("Invalid authentication credentials", 401)
     else if(resp.status === 404) throw APIError("Package not found", 404)
     else if(resp.status >= 500) throw APIError("Impossible to connect with the server", 500)
     else if(resp.status >= 400){
@@ -32,7 +33,7 @@ const fetch = async (url, options={}) => {
         throw APIError(non_field_errors[0], error)
       }else if (typeof error === "object"){
         for(let key in error){
-          throw APIError(error[key][0], error)
+          throw APIError(`${key}: ${error[key][0]}`, error)
         }
       }else{
         throw APIError("Uknown error")
@@ -63,18 +64,24 @@ const login = async (identification, password) => {
   }
 }
 const publish = async (config) => {
+  
+  const keys = ['difficulty', 'language', 'skills', 'technologies', 'slug', 'repository', 'author', 'title'];
 
+  let payload = {}
+  keys.forEach(k => config[k] ? payload[k] = config[k] : null);
   try{
+    console.log("Package to publish: ", payload)
     cli.action.start('Updating package information...')
     await cli.wait(1000)
     const data = await fetch(`${HOST}/v1/package/${config.slug}`,{
       method: 'PUT',
-      body: JSON.stringify(config)
+      body: JSON.stringify(payload)
     })
     cli.action.stop('ready')
     return data
   }
   catch(err){
+    console.log("payload", payload)
     Console.error(err.message);
     Console.debug(err);
     throw err;
@@ -137,7 +144,7 @@ const getAllPackages = async ({ lang='', slug='' }) => {
   try{
     cli.action.start('Downloading packages...')
     await cli.wait(1000)
-    const data = await fetch(`${HOST}/v1/package/all?language=${lang}&slug=${slug}`)
+    const data = await fetch(`${HOST}/v1/package/all?limit=100&language=${lang}&slug=${slug}`)
     cli.action.stop('ready')
     return data;
   }

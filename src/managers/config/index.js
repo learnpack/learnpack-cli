@@ -18,7 +18,7 @@ const getConfigPath = () => {
   const possibleFileNames = ['learn.json', '.learn/learn.json','bc.json','.breathecode/bc.json']
   let config = possibleFileNames.find(file => fs.existsSync(file)) || null
   if(config && fs.existsSync(".breathecode")) return { config, base: ".breathecode" }
-  else if(config === null) throw NotFoundErDEBUGror("learn.json file not found on current folder")
+  else if(config === null) throw NotFoundError("learn.json file not found on current folder, is this a learnpack package?")
   return { config, base: ".learn" }
 }
 
@@ -161,6 +161,7 @@ module.exports = async ({ grading, editor, disableGrading, version }) => {
 
           //remove the duplicates form the actions array
           configObj.config.actions = [...new Set(configObj.config.actions)];
+          configObj.config.translations = [...new Set(configObj.config.translations)];
           
           fs.writeFileSync(configObj.config.dirPath+"/config.json", JSON.stringify(configObj, null, 4))
         }
@@ -174,7 +175,7 @@ function deepMerge(...sources) {
       if (!(acc instanceof Array)) {
         acc = []
       }
-      acc = [...acc, ...source]
+      acc = [...source]
     } else if (source instanceof Object) {
       for (let [key, value] of Object.entries(source)) {
         if (value instanceof Object && key in acc) {
