@@ -58,7 +58,7 @@ module.exports = {
     login: async function(){
 
       var email = await cli.prompt('What is your email?')
-      if(!v.isEmail(email)) throw new ValidationError('Invalid email');
+      if(!v.isEmail(email)) throw ValidationError('Invalid email');
 
       var password = await cli.prompt('What is your password?', {type: 'hide'})
 

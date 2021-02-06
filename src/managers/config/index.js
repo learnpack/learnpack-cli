@@ -8,7 +8,7 @@ const fetch = require('node-fetch');
 const { ValidationError, NotFoundError, InternalError } = require('../../utils/errors.js')
 
 let defaults = require('./defaults.js')
-let exercise = require('./exercise.js')
+let { exercise } = require('./exercise.js')
 
 const { rmSync } = require('../file.js')
 /* exercise folder name standard */
@@ -35,13 +35,21 @@ module.exports = async ({ grading, editor, disableGrading, version }) => {
     let configObj = {}
     if (confPath){
       const bcContent = fs.readFileSync(confPath.config)
+
+      let hiddenBcContent = {}
+      if(fs.existsSync(confPath.base+"/config.json")){
+        hiddenBcContent = fs.readFileSync(confPath.base+"/config.json")
+        hiddenBcContent = JSON.parse(hiddenBcContent)
+        if(!hiddenBcContent) throw Error(`Invalid ${confPath.base}/config.json syntax: Unable to parse.`)
+      }
+
       const jsonConfig = JSON.parse(bcContent)
       if(!jsonConfig) throw Error(`Invalid ${confPath.config} syntax: Unable to parse.`)
 
       //add using id to the installation
       if(!jsonConfig.session) jsonConfig.session = Math.floor(Math.random() * 10000000000000000000)
 
-      configObj = deepMerge(jsonConfig,{ config: { disableGrading } })
+      configObj = deepMerge(hiddenBcContent, jsonConfig,{ config: { disableGrading } })
       Console.debug("Content form the configuration .json ",configObj)
     }
     else{
@@ -71,13 +79,11 @@ module.exports = async ({ grading, editor, disableGrading, version }) => {
     configObj.config.dirPath = "./" + confPath.base
     configObj.config.exercisesPath = getExercisesPath(confPath.base) || "./"
 
-    console.log(configObj.config.dirPath)
-
     return {
         get: () => configObj,
         clean: () => {
 
-          const ignore = ['config', 'exercises', 'entries', "session"]
+          const ignore = ['config', 'exercises', "session"]
 
           rmSync(configObj.config.outputPath);
           rmSync(configObj.config.dirPath+"/_app");
@@ -86,6 +92,7 @@ module.exports = async ({ grading, editor, disableGrading, version }) => {
           if (fs.existsSync(configObj.config.dirPath+"/app.tar.gz"))
             fs.unlinkSync(configObj.config.dirPath+"/app.tar.gz");
 
+          // clean configuration object
           let _new = {}
           Object.keys(configObj).forEach(key => {
             if(!ignore.includes(key)) _new[key] = configObj[key]
@@ -100,14 +107,15 @@ module.exports = async ({ grading, editor, disableGrading, version }) => {
           return exercise
         },
         reset: (slug) => {
-          if (!fs.existsSync(`${configObj.config.configPath.base}/resets/`+slug)) throw new Error("Could not find the original files for "+slug)
+
+          if (!fs.existsSync(`${configObj.config.dirPath}/resets/`+slug)) throw ValidationError("Could not find the original files for "+slug)
 
           const exercise = configObj.exercises.find(ex => ex.slug == slug)
-          if(!exercise) throw new ValidationError(`Exercise ${slug} not found on the configuration`)
+          if(!exercise) throw ValidationError(`Exercise ${slug} not found on the configuration`)
 
-          fs.readdirSync(`${configObj.config.configPath.base}/resets/${slug}/`)
+          fs.readdirSync(`${configObj.config.dirPath}/resets/${slug}/`)
             .forEach(fileName => {
-              const content = fs.readFileSync(`${configObj.config.configPath.base}/resets/${slug}/${fileName}`)
+              const content = fs.readFileSync(`${configObj.config.dirPath}/resets/${slug}/${fileName}`)
               fs.writeFileSync(`${exercise.path}/${fileName}`, content)
             })
         },
@@ -151,11 +159,10 @@ module.exports = async ({ grading, editor, disableGrading, version }) => {
         },
         save: (config=null) => {
 
-          // we don't want the user to be able to manipulate the configuration path
-          //delete config.configPath
-          //delete config.configPath.exercisesPath
-
-          fs.writeFileSync(configObj.config.configPath, JSON.stringify(configObj, null, 4))
+          //remove the duplicates form the actions array
+          configObj.config.actions = [...new Set(configObj.config.actions)];
+          
+          fs.writeFileSync(configObj.config.dirPath+"/config.json", JSON.stringify(configObj, null, 4))
         }
     }
 }

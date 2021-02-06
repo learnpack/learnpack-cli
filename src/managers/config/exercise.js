@@ -2,9 +2,8 @@ const p = require("path")
 const frontMatter = require('front-matter')
 const fs = require("fs")
 let Console = require('../../utils/console');
-const file = require("../file")
 
-module.exports = (path, position, config) => {
+const exercise = (path, position, config) => {
 
     let slug = p.basename(path)
     
@@ -32,31 +31,16 @@ module.exports = (path, position, config) => {
         })
         
         // if the slug is a dot, it means there is not "exercises" folder, and its just a single README.md
-        if(slug == ".") slug = "single";
-        
+        if(slug == ".") slug = "default-index";
+    
+    const detected = detect(config, files);
     return {
         position, path, slug, translations, 
-        language: getLanguage(files),
-        title: slug,
+        language: detected.language,
+        entry: detected.entry ? path + "/" + detected.entry : null, //full path to the exercise entry
+        title: slug || "Exercise",
         graded: files.filter(file => file.toLowerCase().startsWith('test.') || file.toLowerCase().startsWith('tests.')).length > 0,
-        files: files.map(ex => ({ 
-            path: path+'/'+ex, 
-            name: ex, 
-            hidden: !shouldBeVisible({ name: ex, path: path+'/'+ex })
-        }))
-            .sort((f1, f2) => {
-                const score = { // sorting priority
-                "index.html": 1,
-                "styles.css": 2,
-                "styles.scss": 2,
-                "style.css": 2,
-                "style.scss": 2,
-                "index.css": 2,
-                "index.scss": 2,
-                "index.js": 3,
-                }
-                return score[f1.name] < score[f2.name] ? -1 : 1
-            }),
+        files: filterFiles(files, path),
         //if the exercises was on the config before I may keep the status done
         done: (Array.isArray(config.exercises) && typeof config.exercises[position] !== 'undefined' && path.substring(path.indexOf('exercises/')+10) == config.exercises[position].slug) ? config.exercises[position].done : false,
         getReadme: function(lang=null){
@@ -71,11 +55,12 @@ module.exports = (path, position, config) => {
             return attr
         },
         getFile: function(name){
-            if (!fs.existsSync(this.path+'/'+name)) throw Error('File not found: '+this.path+'/'+name)
-            else if(fs.lstatSync(this.path+'/'+name).isDirectory()) return 'Error: This is not a file to be read, but a directory: '+this.path+'/'+name
+            const file = this.files.find(f => f.name === name);
+            if (!fs.existsSync(file.path)) throw Error('File not found: '+file.path)
+            else if(fs.lstatSync(file.path).isDirectory()) return 'Error: This is not a file to be read, but a directory: '+file.path
 
             // get file content
-            const content = fs.readFileSync(this.path+'/'+name)
+            const content = fs.readFileSync(file.path)
 
             //create reset folder
             if (!fs.existsSync(`${config.dirPath}/resets`)) fs.mkdirSync(`${config.dirPath}/resets`)
@@ -89,8 +74,9 @@ module.exports = (path, position, config) => {
             return content
         },
         saveFile: function(name, content){
-            if (!fs.existsSync(this.path+'/'+name)) throw Error('File not found: '+this.path+'/'+name)
-            return fs.writeFileSync(this.path+'/'+name, content, 'utf8')
+            const file = this.files.find(f => f.name === name);
+            if (!fs.existsSync(file.path)) throw Error('File not found: '+file.path)
+            return fs.writeFileSync(file.path, content, 'utf8')
         },
         getTestReport: function(){
             const _path = `${config.confPath.base}/reports/${this.slug}.json`
@@ -120,11 +106,13 @@ const shouldBeVisible = function(file){
         (file.name.toLocaleLowerCase().indexOf('test.') == -1 && file.name.toLocaleLowerCase().indexOf('tests.') == -1 && file.name.toLocaleLowerCase().indexOf('.hide.') == -1 &&
         // ignore java compiled files
         (file.name.toLocaleLowerCase().indexOf('.class') == -1) &&
+        // ignore hidden files
+        (file.name.charAt('.') === 0) &&
         // ignore learn.json and bc.json
         (file.name.toLocaleLowerCase().indexOf('learn.json') == -1) && (file.name.toLocaleLowerCase().indexOf('bc.json') == -1) &&
         // ignore images
         notImage(file.name) &&
-        // readmes and directories
+        // readme's and directories
         !file.name.toLowerCase().includes("readme.") && !isDirectory(file.path) && file.name.indexOf('_') != 0)
     );
 }
@@ -134,17 +122,64 @@ const isDirectory = source => {
     return fs.lstatSync(source).isDirectory()
 }
 
-const getLanguage = (files) => {
-    const hasPython = files.find(f => f.includes('.py'))
-    if(hasPython) return "python3"
-    const hasJava = files.find(f => f.includes('.java'))
-    if(hasJava) return "java"
+const detect = (config, files) => {
 
-    const hasHTML = files.find(f => f.includes('index.html'))
-    const hasJS = files.find(f => f.includes('.js'))
-    if(hasJS && hasHTML) return "vanillajs"
-    else if(hasHTML) return "html"
-    else if(hasJS) return "node"
+    if(!config.entries) throw Error("No configuration found for entries, please add a 'entries' object with the default file name for your exercise entry file that is going to be used while compiling, for example: index.html for html, app.py for python3, etc.")
 
-    return "markdown";
+    let hasFiles = files.filter(f => f.includes('.py'))
+    if(hasFiles.length > 0) return {
+        language: "python3",
+        entry: hasFiles.find(f => config.entries["python3"] === f)
+    }
+
+    hasFiles = files.filter(f => f.includes('.java'))
+    if(hasFiles.length > 0) return {
+        language: "java",
+        entry: hasFiles.find(f => config.entries["java"] === f)
+    }
+
+    const hasHTML = files.filter(f => f.includes('index.html'))
+    const hasJS = files.filter(f => f.includes('.js'))
+    if(hasJS.length > 0 && hasHTML.length > 0) return {
+        language: "vanillajs",
+        entry: hasHTML.find(f => config.entries["vanillajs"] === f)
+    }
+    else if(hasHTML.length > 0) return {
+        language: "html",
+        entry: hasHTML.find(f => config.entries["html"] === f)
+    }
+    else if(hasJS.length > 0) return {
+        language: "node",
+        entry: hasJS.find(f => config.entries["node"] === f)
+    }
+
+    return {
+        language: null,
+        entry: null
+    };
+}
+
+const filterFiles = (files, basePath=".") => files.map(ex => ({ 
+    path: basePath+'/'+ex, 
+    name: ex, 
+    hidden: !shouldBeVisible({ name: ex, path: basePath+'/'+ex })
+}))
+    .sort((f1, f2) => {
+        const score = { // sorting priority
+        "index.html": 1,
+        "styles.css": 2,
+        "styles.scss": 2,
+        "style.css": 2,
+        "style.scss": 2,
+        "index.css": 2,
+        "index.scss": 2,
+        "index.js": 3,
+        }
+        return score[f1.name] < score[f2.name] ? -1 : 1
+    });
+
+module.exports = {
+    exercise,
+    detect,
+    filterFiles
 }

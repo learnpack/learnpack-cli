@@ -10,16 +10,19 @@ module.exports = {
             s.logs = [];
         }
     },
-    addAllowed: function(action){
+    addAllowed: function(actions){
+      if(!Array.isArray(actions)) actions = [actions];
 
-        //avoid adding the "test" action if grading is disabled
-        if(action === "test" && this.config.disable_grading) return;
-
-                                                      //remove duplicates
-        this.allowedActions = this.allowedActions.filter(a => a !== action).concat([action]);
+      //avoid adding the "test" action if grading is disabled
+      if(actions.includes("test") && this.config.disable_grading) 
+        actions = actions.filter(a => a != "test");
+      
+                                                                  //remove duplicates
+      this.allowedActions = this.allowedActions.filter(a => !actions.includes(a)).concat(actions);
     },
-    removeAllowed: function(action){
-        this.allowedActions = this.allowedActions.filter(a => a !== action);
+    removeAllowed: function(actions){
+      if(!Array.isArray(actions)) actions = [actions];
+      this.allowedActions = this.allowedActions.filter(a => !actions.includes(a));
     },
     start: function(config, server){
         this.config = config;
@@ -77,8 +80,6 @@ module.exports = {
       }
 
       if(this.config.grading === 'incremental'){
-        this.removeAllowed('run');
-        this.removeAllowed('build');
         this.removeAllowed('reset');
       }
 

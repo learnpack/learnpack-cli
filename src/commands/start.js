@@ -11,7 +11,7 @@ const { download, decompress, downloadEditor } = require('../managers/file.js')
 // const Gitpod = require('../../utils/bcGitpod.js')
 const createServer = require('../managers/server')
 
-const { ValidationError, InternalError } = require('../utils/errors.js')
+const { ValidationError, InternalError, CompilerError } = require('../utils/errors.js')
 
 class StartCommand extends SessionCommand {
   constructor(...params){
@@ -58,7 +58,8 @@ class StartCommand extends SessionCommand {
         socket.ready('Ready to compile...')
       }
       catch(error){
-        socket.fatal(error.message || "There was an error reseting the exercise")
+        socket.error('compiler-error', error.message || "There was an error reseting the exercise")
+        setTimeout(() => socket.ready('Ready to compile...'), 2000)
       }
     })
     // socket.on("preview", (data) => {
@@ -69,8 +70,13 @@ class StartCommand extends SessionCommand {
 
     socket.on("build", async (data) => {
       const exercise = this.configManager.getExercise(data.exerciseSlug)
-      socket.log('compiling','Building exercise '+data.exerciseSlug+'...')
+      
+      if(!exercise.language){
+        socket.error('compiler-error','Impossible to detect language to build for '+data.exerciseSlug+'...')
+        return;
+      } 
 
+      socket.log('compiling','Building exercise '+data.exerciseSlug+' with '+exercise.language+'...')
       const stdout = await this.config.runHook('action', {
         action: 'compile',
         socket, configuration: config,
@@ -83,12 +89,17 @@ class StartCommand extends SessionCommand {
     socket.on("test", async (data) => {
         const exercise = this.configManager.getExercise(data.exerciseSlug)
 
+        if(!exercise.language){
+          socket.error('compiler-error','Impossible to detect engine language for testing for '+data.exerciseSlug+'...')
+          return;
+        } 
+
         if(config.ignoreTests){
           socket.ready('Grading is disabled on learn.json file.')
           return true;
         }
 
-        socket.log('testing','Testing your code output')
+        socket.log('testing','Testing your exercise using the '+exercise.language+' engine.')
 
         const stdout = await this.config.runHook('action', {
           action: 'test',
