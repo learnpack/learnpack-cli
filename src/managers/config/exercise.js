@@ -3,8 +3,9 @@ const frontMatter = require('front-matter')
 const fs = require("fs")
 let Console = require('../../utils/console');
 
-const exercise = (path, position, config) => {
+const exercise = (path, position, configObject) => {
 
+    const { config, exercises } = configObject;
     let slug = p.basename(path)
     
     if(!validateExerciseDirectoryName(slug)){
@@ -42,7 +43,7 @@ const exercise = (path, position, config) => {
         graded: files.filter(file => file.toLowerCase().startsWith('test.') || file.toLowerCase().startsWith('tests.')).length > 0,
         files: filterFiles(files, path),
         //if the exercises was on the config before I may keep the status done
-        done: (Array.isArray(config.exercises) && typeof config.exercises[position] !== 'undefined' && path.substring(path.indexOf('exercises/')+10) == config.exercises[position].slug) ? config.exercises[position].done : false,
+        done: (Array.isArray(exercises) && typeof exercises[position] !== 'undefined' && path.substring(path.indexOf('exercises/')+10) == exercises[position].slug) ? exercises[position].done : false,
         getReadme: function(lang=null){
             if(lang == 'us') lang = null // <-- english is default, no need to append it to the file name
             if (!fs.existsSync(`${this.path}/README${lang ? "."+lang : ''}.md`)){

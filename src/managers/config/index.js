@@ -138,7 +138,8 @@ module.exports = async ({ grading, editor, disableGrading, version }) => {
 
             // TODO: we could use npm library front-mater to read the title of the exercises from the README.md
             const grupedByDirectory = getDirectories(configObj.config.exercisesPath);
-            if(grupedByDirectory.length > 0) configObj.exercises = grupedByDirectory.map((path, position) => exercise(path, position, configObj.config));
+            if(grupedByDirectory.length > 0) configObj.exercises = grupedByDirectory.map((path, position) => exercise(path, position, configObj));
+            // else means the exercises are not in a folder
             else configObj.exercises = [exercise(configObj.config.exercisesPath, 0, configObj.config)]
             this.save()
         },
