@@ -1,7 +1,7 @@
 {
   "name": "learnpack",
   "description": "Create, sell or download and take learning amazing learning packages",
-  "version": "0.0.78",
+  "version": "0.0.79",
   "author": "Alejandro Sanchez @alesanchezr",
   "bin": {
     "learnpack": "./bin/run"
