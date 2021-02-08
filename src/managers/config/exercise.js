@@ -140,7 +140,10 @@ const detect = (config, files) => {
 
     const hasHTML = files.filter(f => f.includes('index.html'))
     const hasJS = files.filter(f => f.includes('.js'))
-    if(hasJS.length > 0 && hasHTML.length > 0) return {
+    // vanillajs needs to have at least 2 javascript files,
+    // the test.js and the entry file in js
+    // if not its just another HTML
+    if(hasJS.length > 1 && hasHTML.length > 0) return {
         language: "vanillajs",
         entry: hasHTML.find(f => config.entries["vanillajs"] === f)
     }

@@ -72,7 +72,7 @@ module.exports = async function(app, configObject, configManager){
             Console.debug(`Exercise detected entry: ${detected.entry}`)
         }
 
-        if(!exercise.graded) socket.removeAllowed("test")
+        if(!exercise.graded || config.disableGrading) socket.removeAllowed("test")
         else socket.addAllowed('test')
 
         if(!exercise.entry) socket.removeAllowed("build")

@@ -8,7 +8,7 @@ module.exports = {
     actionCallBacks: {
         clean: (data, s) => {
             s.logs = [];
-        }
+        },
     },
     addAllowed: function(actions){
       if(!Array.isArray(actions)) actions = [actions];

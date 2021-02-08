@@ -93,8 +93,8 @@ class StartCommand extends SessionCommand {
           return;
         } 
 
-        if(config.ignoreTests){
-          socket.ready('Grading is disabled on learn.json file.')
+        if(config.disableGrading){
+          socket.ready('Grading is disabled on configuration')
           return true;
         }
 
