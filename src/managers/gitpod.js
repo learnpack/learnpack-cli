@@ -22,6 +22,7 @@ module.exports = {
     },
     openFile: async function(files){
 
+      Console.debug(`Attempting to open files in gitpod mode`, files);
       this.init();//initilize gitpod config
 
       // gitpod will open files only on isolated mode

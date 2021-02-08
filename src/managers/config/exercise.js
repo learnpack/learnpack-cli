@@ -2,6 +2,7 @@ const p = require("path")
 const frontMatter = require('front-matter')
 const fs = require("fs")
 let Console = require('../../utils/console');
+let blocked = require('./blockedExtensionFiles')
 
 const exercise = (path, position, configObject) => {
 
@@ -96,25 +97,24 @@ const validateExerciseDirectoryName = (str) => {
     return regex.test(str)
 }
 
-const notImage = (str) => {
-    return (str.toLocaleLowerCase().indexOf('.png') == -1) && (str.toLocaleLowerCase().indexOf('.gif') == -1) &&
-    (str.toLocaleLowerCase().indexOf('.jpg') == -1) && (str.toLocaleLowerCase().indexOf('.jpeg') == -1)
+const isCodable = (str) => {
+    const extension = p.extname(str);
+    const result = blocked.includes(extension.toLowerCase());
+    return !result;
 }
 
 const shouldBeVisible = function(file){
     return (
-        // ignore tests files and files with ".hide" on their name
+        // doest not have "test." on their name
         (file.name.toLocaleLowerCase().indexOf('test.') == -1 && file.name.toLocaleLowerCase().indexOf('tests.') == -1 && file.name.toLocaleLowerCase().indexOf('.hide.') == -1 &&
-        // ignore java compiled files
-        (file.name.toLocaleLowerCase().indexOf('.class') == -1) &&
         // ignore hidden files
-        (file.name.charAt('.') === 0) &&
+        (file.name.charAt('.') != 0) &&
         // ignore learn.json and bc.json
         (file.name.toLocaleLowerCase().indexOf('learn.json') == -1) && (file.name.toLocaleLowerCase().indexOf('bc.json') == -1) &&
-        // ignore images
-        notImage(file.name) &&
+        // ignore images, videos, vectors, etc.
+        isCodable(file.name) &&
         // readme's and directories
-        !file.name.toLowerCase().includes("readme.") && !isDirectory(file.path) && file.name.indexOf('_') != 0)
+        !file.name.toLowerCase().includes("readme.") && !isDirectory(file.path) && file.name.charAt('_') != 0)
     );
 }
 
