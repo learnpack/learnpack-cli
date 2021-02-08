@@ -59,18 +59,18 @@ module.exports = async function(app, configObject, configManager){
 
             // update the file hierarchy with updates
             exercise.files = exercise.files.filter(f => f.name.includes("test.")).concat(filterFiles(scanedFiles))
+            Console.debug(`Exercise updated files: `, exercise.files)
             //if a new language for the testing engine is detected, we replace it
             // if not we leave it as it was before
-            if(detected.language) exercise.language = detected.language;
+            if(detected.language){
+                Console.debug(`Switching to ${detected.language} engine in this exercise`)
+                exercise.language = detected.language;
+            } 
 
             // WARNING: has to be the FULL PATH to the entry path
             exercise.entry = detected.entry;
+            Console.debug(`Exercise detected entry: ${detected.entry}`)
         }
-
-        // open files if in gitpod mode
-        // console.log("files", exercise.files)
-        // if(config.editor.mode === "gitpod") 
-        //     gitpod.openFile(exercise.files.filter(f => !f.hidden).map(f => f.path))
 
         if(!exercise.graded) socket.removeAllowed("test")
         else socket.addAllowed('test')

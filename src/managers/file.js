@@ -1,4 +1,5 @@
 var fs = require('fs')
+var p = require('path')
 let shell = require('shelljs')
 const {cli} = require('cli-ux')
 var targz = require('targz')
@@ -28,6 +29,7 @@ const downloadEditor = async (version, destination) => {
   const resp2 = await fetch(`https://github.com/learnpack/coding-ide/blob/${version}/dist`)
   if(!resp2.ok) throw InternalError(`Coding Editor v${version} was not found on learnpack repository, check the config.editor.version property on learn.json`)
 
+  Console.info("Downloading the LearnPack coding UI, this may take a minute...")
   return await download(`https://github.com/learnpack/coding-ide/blob/${version}/dist/app.tar.gz?raw=true`, destination)
 }
 
@@ -84,8 +86,21 @@ const clone = (repository=null, folder='./') => new Promise((resolve, reject)=>{
   cli.action.start('Verifying GIT...')
   if (!shell.which('git')) {
     reject('Sorry, this script requires git')
+    return false
   }
   cli.action.stop()
+  
+  let fileName = p.basename(repository)
+  if(!fileName){
+    reject('Invalid repository information on package: '+repository)
+    return false
+  }
+  
+  fileName = fileName.split('.')[0];
+  if(fs.existsSync("./"+fileName)){
+    reject(`Directory ${fileName} already exists; Did you download this package already?`)
+    return false
+  }
 
   cli.action.start(`Cloning repository ${repository}...`)
   if (shell.exec(`git clone ${repository}`).code !== 0) {
@@ -94,7 +109,7 @@ const clone = (repository=null, folder='./') => new Promise((resolve, reject)=>{
   cli.action.stop()
 
   cli.action.start('Cleaning installation...')
-  if (shell.exec(`rm -R -f ./${folder}/.git`).code !== 0) {
+  if (shell.exec(`rm -R -f ${folder}${fileName}/.git`).code !== 0) {
     reject('Error: removing .git directory')
   }
   cli.action.stop()

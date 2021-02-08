@@ -140,7 +140,7 @@ module.exports = async ({ grading, editor, disableGrading, version }) => {
             const grupedByDirectory = getDirectories(configObj.config.exercisesPath);
             if(grupedByDirectory.length > 0) configObj.exercises = grupedByDirectory.map((path, position) => exercise(path, position, configObj));
             // else means the exercises are not in a folder
-            else configObj.exercises = [exercise(configObj.config.exercisesPath, 0, configObj.config)]
+            else configObj.exercises = [exercise(configObj.config.exercisesPath, 0, configObj)]
             this.save()
         },
         watchIndex: function(onChange=null){

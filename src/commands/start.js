@@ -37,6 +37,8 @@ class StartCommand extends SessionCommand {
 
     // download app and decompress
     let resp = await downloadEditor(config.editor.version, `${config.dirPath}/app.tar.gz`)
+
+    Console.info("Decompressing LearnPack UI, this may take a minute...")
     await decompress(`${config.dirPath}/app.tar.gz`, `${config.dirPath}/_app/`)
 
     const server = await createServer(configObject, this.configManager)

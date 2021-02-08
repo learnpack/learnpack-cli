@@ -107,13 +107,13 @@ const shouldBeVisible = function(file){
         // doest not have "test." on their name
         (file.name.toLocaleLowerCase().indexOf('test.') == -1 && file.name.toLocaleLowerCase().indexOf('tests.') == -1 && file.name.toLocaleLowerCase().indexOf('.hide.') == -1 &&
         // ignore hidden files
-        (file.name.charAt('.') != 0) &&
+        (file.name.charAt(0) != '.') &&
         // ignore learn.json and bc.json
         (file.name.toLocaleLowerCase().indexOf('learn.json') == -1) && (file.name.toLocaleLowerCase().indexOf('bc.json') == -1) &&
         // ignore images, videos, vectors, etc.
         isCodable(file.name) &&
         // readme's and directories
-        !file.name.toLowerCase().includes("readme.") && !isDirectory(file.path) && file.name.charAt('_') != 0)
+        !file.name.toLowerCase().includes("readme.") && !isDirectory(file.path) && file.name.charAt(0) != '_')
     );
 }
 
