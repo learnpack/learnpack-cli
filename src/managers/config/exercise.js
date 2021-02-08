@@ -2,7 +2,7 @@ const p = require("path")
 const frontMatter = require('front-matter')
 const fs = require("fs")
 let Console = require('../../utils/console');
-let blocked = require('./blockedExtensionFiles')
+let allowedExt = require('./allowed_extensions')
 
 const exercise = (path, position, configObject) => {
 
@@ -99,8 +99,7 @@ const validateExerciseDirectoryName = (str) => {
 
 const isCodable = (str) => {
     const extension = p.extname(str);
-    const result = blocked.includes(extension.toLowerCase());
-    return !result;
+    return allowedExt.includes(extension.substring(1).toLowerCase());
 }
 
 const shouldBeVisible = function(file){
