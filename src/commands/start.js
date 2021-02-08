@@ -6,9 +6,6 @@ const socket = require('../managers/socket.js')
 const Gitpod = require('../managers/gitpod.js')
 const { download, decompress, downloadEditor } = require('../managers/file.js')
 
-// const bcPrettier = require('../../utils/bcPrettier.js')
-// const TestManager = require('../../utils/bcTest.js')
-// const Gitpod = require('../../utils/bcGitpod.js')
 const createServer = require('../managers/server')
 
 const { ValidationError, InternalError, CompilerError } = require('../utils/errors.js')

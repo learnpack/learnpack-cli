@@ -25,8 +25,8 @@ module.exports = {
       this.init();//initilize gitpod config
 
       // gitpod will open files only on isolated mode
-      if(this.config.grading !== 'isolated'){
-        Console.debug(`Files cannot be automatically opened because we are in ${this.config.grading} grading (only for isolated)`);
+      if(!this.config || this.config.grading !== 'isolated'){
+        Console.debug(`Files cannot be automatically opened because we are not on isolated grading (only for isolated)`);
         socket.log('ready',['Ready to compile or test...']);
         return true;
       }

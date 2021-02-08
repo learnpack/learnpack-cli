@@ -3,6 +3,7 @@ const express = require('express')
 const fs = require('fs')
 const bodyParser = require('body-parser')
 const socket = require('../socket.js');
+const gitpod = require('../gitpod');
 const { detect, filterFiles } = require("../config/exercise");
 
 const withHandler = (func) => (req, res) => {
@@ -65,6 +66,9 @@ module.exports = async function(app, configObject, configManager){
             // WARNING: has to be the FULL PATH to the entry path
             exercise.entry = detected.entry;
         }
+
+        //if(exercise.editor.mode === "gitpod") 
+            gitpod.openFile(exercise.files.map(f => f.path))
 
         if(!exercise.graded) socket.removeAllowed("test")
         else socket.addAllowed('test')
