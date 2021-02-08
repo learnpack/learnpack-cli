@@ -68,7 +68,7 @@ module.exports = async function(app, configObject, configManager){
         }
 
         if(exercise.editor.mode === "gitpod") 
-            gitpod.openFile(exercise.files.map(f => f.path))
+            gitpod.openFile(exercise.files.filter(f => !f.hidden).map(f => f.path))
 
         if(!exercise.graded) socket.removeAllowed("test")
         else socket.addAllowed('test')
