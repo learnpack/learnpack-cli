@@ -32,6 +32,15 @@ module.exports = async function(app, configObject, configManager){
         res.json(configObject)
     }))
 
+    //symbolic link to maintain path compatiblity
+    app.get('/assets/:filePath', withHandler((req, res) => {
+        let filePath = `${config.dirPath}/assets/${req.params.filePath}`
+        if (!fs.existsSync(filePath)) throw Error('File not found: '+filePath)
+        const content = fs.readFileSync(filePath)
+        res.write(content);
+        res.end();
+    }));
+
     app.get('/exercise', withHandler((req, res) => {
         res.json(configObject.exercises)
     }))

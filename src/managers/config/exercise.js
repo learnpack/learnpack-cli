@@ -2,7 +2,7 @@ const p = require("path")
 const frontMatter = require('front-matter')
 const fs = require("fs")
 let Console = require('../../utils/console');
-let allowedExt = require('./allowed_extensions')
+const allowed = require('./allowed_files')
 
 const exercise = (path, position, configObject) => {
 
@@ -52,7 +52,8 @@ const exercise = (path, position, configObject) => {
                 if(lang) lang = null
                 if (!fs.existsSync(`${this.path}/README${lang ? "."+lang : ''}.md`)) throw Error('Readme file not found for exercise: '+this.path+'/README.md')
             }
-            const content = fs.readFileSync(`${this.path}/README${lang ? "."+lang : ''}.md`,"utf8")
+            let content = fs.readFileSync(`${this.path}/README${lang ? "."+lang : ''}.md`,"utf8")
+            // content = content.replace(/!\[.*\](../../assets/script-test.gif)/, "<div>$1</div>")
             const attr = frontMatter(content)
             return attr
         },
@@ -99,7 +100,11 @@ const validateExerciseDirectoryName = (str) => {
 
 const isCodable = (str) => {
     const extension = p.extname(str);
-    return allowedExt.includes(extension.substring(1).toLowerCase());
+    return allowed.extensions.includes(extension.substring(1).toLowerCase());
+}
+
+const isNotConfiguration = (str) => {
+    return !allowed.names.includes(str);
 }
 
 const shouldBeVisible = function(file){
@@ -111,7 +116,7 @@ const shouldBeVisible = function(file){
         // ignore learn.json and bc.json
         (file.name.toLocaleLowerCase().indexOf('learn.json') == -1) && (file.name.toLocaleLowerCase().indexOf('bc.json') == -1) &&
         // ignore images, videos, vectors, etc.
-        isCodable(file.name) &&
+        isCodable(file.name) && isNotConfiguration(file.name) &&
         // readme's and directories
         !file.name.toLowerCase().includes("readme.") && !isDirectory(file.path) && file.name.charAt(0) != '_')
     );
