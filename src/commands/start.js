@@ -102,7 +102,7 @@ class StartCommand extends SessionCommand {
         }
 
         // validate plugins installation for compiler
-        if(this.configManager.validateEngine(exercise.language, server, socket)) return false;
+        if(!this.configManager.validateEngine(exercise.language, server, socket)) return false;
 
         socket.log('testing','Testing your exercise using the '+exercise.language+' engine.')
 
