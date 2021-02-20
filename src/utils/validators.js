@@ -1,7 +1,7 @@
 
 function validURL(str) {
 
-    if(!str.includes("github.com")) return false;
+    if(!str || !str.includes("github.com")) return false;
     
     var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
         '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name

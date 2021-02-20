@@ -73,7 +73,10 @@ class StartCommand extends SessionCommand {
       if(!exercise.language){
         socket.error('compiler-error','Impossible to detect language to build for '+data.exerciseSlug+'...')
         return;
-      } 
+      }
+
+      // validate plugins installation for compiler
+      this.configManager.validateEngine(exercise.language)
 
       socket.log('compiling','Building exercise '+data.exerciseSlug+' with '+exercise.language+'...')
       const stdout = await this.config.runHook('action', {
@@ -97,6 +100,9 @@ class StartCommand extends SessionCommand {
           socket.ready('Grading is disabled on configuration')
           return true;
         }
+
+        // validate plugins installation for compiler
+        this.configManager.validateEngine(exercise.language)
 
         socket.log('testing','Testing your exercise using the '+exercise.language+' engine.')
 

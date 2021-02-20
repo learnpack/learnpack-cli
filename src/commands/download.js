@@ -3,8 +3,8 @@ const fetch = require('node-fetch');
 const { clone } = require('../managers/file.js')
 const Console = require('../utils/console')
 const api = require('../utils/api')
+const getRepoInfo = require('git-repo-info')
 const { askPackage } = require('../ui/download')
-// const BaseCommand = require('../utils/BaseCommand');
 
 class DownloadCommand extends Command {
   // async init() {
@@ -16,16 +16,16 @@ class DownloadCommand extends Command {
     // start watching for file changes
     let _package = args.package
     if(!_package) _package = await askPackage()
-
+    
     if(!_package) return null
 
     try{
-      const packageInfo = await api.getAllPackages({ slug: _package })
-      if(packageInfo.results.length == 0) Console.error(`Package ${_package} not found`)
-      else clone(packageInfo.results[0].repository)
+      _package = _package.pack;
+      clone(_package.repository)
         .then(result => {
           Console.success(`Successfully downloaded`)
-          Console.info(`You can now CD into the folder like this: $ cd ${_package}`)
+          const folder = _package.repository.substring(_package.repository.lastIndexOf('/') + 1).split(".")[0];
+          Console.info(`You can now CD into the folder like this: $ cd ${folder}`)
         })
         .catch(error => Console.error(error.message || error))
     }

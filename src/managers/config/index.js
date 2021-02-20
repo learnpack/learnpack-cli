@@ -4,6 +4,7 @@ let shell = require('shelljs')
 let Console = require('../../utils/console')
 let watch = require('../../utils/watcher')
 const Gitpod = require('../gitpod')
+const chalk = require("chalk")
 const fetch = require('node-fetch');
 const { ValidationError, NotFoundError, InternalError } = require('../../utils/errors.js')
 
@@ -80,7 +81,41 @@ module.exports = async ({ grading, editor, disableGrading, version }) => {
     configObj.config.exercisesPath = getExercisesPath(confPath.base) || "./"
 
     return {
+        validLanguages: {},
         get: () => configObj,
+        validateEngine: function(language){
+          
+          const alias = (_l) => {
+            let map = {
+              "python3": "python"
+            }
+            if(map[_l]) return map[_l]
+            else return _l
+          }
+
+          // decode aliases
+          language = alias(language)
+
+          if(this.validLanguages[language]) return true;
+
+          Console.debug(`Validating engine for ${language} compilation`)
+          let result = shell.exec('learnpack plugins', { silent: true })
+          
+          if(result.code == 0 && result.stdout.includes(`learnpack-${language}`)) return true;
+          
+          Console.info(`Language engine for ${language} not found, installing...`)
+          result = shell.exec(`learnpack plugins:install learnpack-${language}`, { silent: true })
+          if(result.code === 0){
+            Console.log(`Successfully installed the ${language} exercise engine`)
+            this.validLanguages[language] = true
+            return true;
+          } 
+          else{
+            this.validLanguages[language] = false
+            Console.error(`Error installing ${language} exercise engine`)
+            console.log(result.stdout)
+          }
+        },
         clean: () => {
 
           const ignore = ['config', 'exercises', "session"]
