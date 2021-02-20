@@ -83,7 +83,7 @@ module.exports = async ({ grading, editor, disableGrading, version }) => {
     return {
         validLanguages: {},
         get: () => configObj,
-        validateEngine: function(language){
+        validateEngine: function(language, server, socket){
           
           const alias = (_l) => {
             let map = {
@@ -101,19 +101,25 @@ module.exports = async ({ grading, editor, disableGrading, version }) => {
           Console.debug(`Validating engine for ${language} compilation`)
           let result = shell.exec('learnpack plugins', { silent: true })
           
-          if(result.code == 0 && result.stdout.includes(`learnpack-${language}`)) return true;
+          if(result.code == 0 && result.stdout.includes(`learnpack-${language}`)){
+            this.validLanguages[language] = true
+            return true;
+          } 
           
           Console.info(`Language engine for ${language} not found, installing...`)
           result = shell.exec(`learnpack plugins:install learnpack-${language}`, { silent: true })
           if(result.code === 0){
-            Console.log(`Successfully installed the ${language} exercise engine`)
-            this.validLanguages[language] = true
-            return true;
+            socket.log('compiling','Installing the python compiler, you will have to reset the exercises after installation by writing on your terminal: $ learnpack run')
+            Console.info(`Successfully installed the ${language} exercise engine, \n please start learnpack again by running the following command: \n ${chalk.white(`$ learnpack start`)}\n\n `)
+            server.terminate()
+            return false;
           } 
           else{
             this.validLanguages[language] = false
+            socket.error(`Error installing ${language} exercise engine`)
             Console.error(`Error installing ${language} exercise engine`)
-            console.log(result.stdout)
+            Console.log(result.stdout)
+            throw InternalError(`Error installing ${language} exercise engine`)
           }
         },
         clean: () => {

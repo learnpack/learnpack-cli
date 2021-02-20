@@ -27,5 +27,28 @@ module.exports = async function(configObj, configManager){
         }
       })
 
+    const sockets = new Set();
+
+    server.on('connection', (socket) => {
+        sockets.add(socket);
+        
+        server.once('close', () => {
+            sockets.delete(socket);
+        });
+    });
+    
+    /**
+     * Forcefully terminates HTTP server.
+     */
+    server.terminate = (callback) => {
+        for (const socket of sockets) {
+            socket.destroy();
+        
+            sockets.delete(socket);
+        }
+        
+        server.close(callback);
+    };
+
     return server
 }

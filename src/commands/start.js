@@ -76,7 +76,7 @@ class StartCommand extends SessionCommand {
       }
 
       // validate plugins installation for compiler
-      this.configManager.validateEngine(exercise.language)
+      if(!this.configManager.validateEngine(exercise.language, server, socket)) return false;
 
       socket.log('compiling','Building exercise '+data.exerciseSlug+' with '+exercise.language+'...')
       const stdout = await this.config.runHook('action', {
@@ -102,7 +102,7 @@ class StartCommand extends SessionCommand {
         }
 
         // validate plugins installation for compiler
-        this.configManager.validateEngine(exercise.language)
+        if(this.configManager.validateEngine(exercise.language, server, socket)) return false;
 
         socket.log('testing','Testing your exercise using the '+exercise.language+' engine.')
 
