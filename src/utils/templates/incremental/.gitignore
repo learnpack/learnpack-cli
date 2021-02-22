@@ -6,15 +6,15 @@
 !README.md
 
 # exercises
-!/.learn
-/.learn/**
-!/.learn/learn.json
-!/.learn/exercises
-!/.learn/exercises/**
-!/.learn/assets
-!/.learn/assets/**
+!.learn/
+!.learn/*
+.learn/_app
+.learn/.session
+.learn/dist
+.learn/app.tar.gz
+.learn/config.json
 
-# python garbage
+# python compiled files
 *.pyc
 __pycache__/
 .pytest_cache/
