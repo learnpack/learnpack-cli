@@ -87,6 +87,7 @@ class InitComand extends BaseCommand {
       await fs.copySync(templatesDir, './')
       fs.writeFileSync('./README.md', eta.render(fs.readFileSync(path.resolve(__dirname,`${templatesDir}/README.ejs`),'utf-8'), packageInfo))
       if(fs.existsSync('./README.ejs')) fs.removeSync('./README.ejs')
+      if(!fs.existsSync('./.gitignore')) fs.copyFile(path.resolve(__dirname,'../utils/templates/gitignore.txt'), './.gitignore')
       fs.writeFileSync('./learn.json', JSON.stringify(packageInfo, null, 2))
     }
     catch(error){
