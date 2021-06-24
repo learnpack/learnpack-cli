@@ -67,7 +67,13 @@ module.exports = {
     reload: function(files=null, exercises=null){
       this.emit('reload', files, exercises);
     },
-    
+    openPreview: function(){
+      let url = `${this.config.address}:${this.config.port}/preview`;
+      if(this.config.editor.mode === 'gitpod'){
+        url = `https://${this.config.port}-${this.config.address.substring(8)}/preview`
+      }
+      this.emit('openWindow', status='ready', logs=[`Opening ${url}`], inputs=[], report=[], data=url)
+    },
     log: function(status, messages=[],report=[], data=null){
       this.emit('log',status,messages,[],report, data);
       Console.log(messages)
