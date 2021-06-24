@@ -35,7 +35,7 @@ const exercise = (path, position, configObject) => {
         // if the slug is a dot, it means there is not "exercises" folder, and its just a single README.md
         if(slug == ".") slug = "default-index";
     
-    const detected = detect(config, files);
+    const detected = detect(configObject, files);
     return {
         position, path, slug, translations, 
         language: detected.language,
@@ -127,9 +127,16 @@ const isDirectory = source => {
     return fs.lstatSync(source).isDirectory()
 }
 
-const detect = (config, files) => {
+/**
+ * Learnpack must be able to AUTOMATICALLY detect language.
+ * Because learnpack can work with multilang exercises.
+ */
+const detect = (configObject, files) => {
+
+    const { config } = configObject;
 
     if(!config.entries) throw Error("No configuration found for entries, please add a 'entries' object with the default file name for your exercise entry file that is going to be used while compiling, for example: index.html for html, app.py for python3, etc.")
+    //A language was found on the config object, but this language will only be used as last resort, learnpack will try to guess each exercise language independently based on file extension (js, jsx, html, etc.)
 
     let hasFiles = files.filter(f => f.includes('.py'))
     if(hasFiles.length > 0) return {
@@ -143,14 +150,20 @@ const detect = (config, files) => {
         entry: hasFiles.find(f => config.entries["java"] === f)
     }
 
+    hasFiles = files.filter(f => f.includes('.jsx'))
+    if(hasFiles.length > 0) return {
+        language: "react",
+        entry: hasFiles.find(f => config.entries["react"] === f)
+    }
+
     const hasHTML = files.filter(f => f.includes('index.html'))
     const hasJS = files.filter(f => f.includes('.js'))
-    // vanillajs needs to have at least 2 javascript files,
+    // angular, vue, vanillajs needs to have at least 2 files (html,css,js),
     // the test.js and the entry file in js
     // if not its just another HTML
     if(hasJS.length > 1 && hasHTML.length > 0) return {
-        language: "vanillajs",
-        entry: hasHTML.find(f => config.entries["vanillajs"] === f)
+        language: configObject.language || "vanillajs",
+        entry: hasHTML.find(f => config.entries[configObject.language || "vanillajs"] === f)
     }
     else if(hasHTML.length > 0) return {
         language: "html",
@@ -162,7 +175,7 @@ const detect = (config, files) => {
     }
 
     return {
-        language: null,
+        language: configObject.language || null,
         entry: null
     };
 }
@@ -182,6 +195,7 @@ const filterFiles = (files, basePath=".") => files.map(ex => ({
         "index.css": 2,
         "index.scss": 2,
         "index.js": 3,
+        "index.jsx": 3,
         }
         return score[f1.name] < score[f2.name] ? -1 : 1
     });

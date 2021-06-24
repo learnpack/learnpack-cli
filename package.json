@@ -44,7 +44,8 @@
     "eslint-config-oclif": "^3.1.0",
     "globby": "^10.0.2",
     "mocha": "^5.2.0",
-    "nyc": "^14.1.1"
+    "nyc": "^14.1.1",
+    "learnpack-react": "link:/Users/alejandrosanchez/Code/learnpack-react"
   },
   "engines": {
     "node": ">=8.0.0"
@@ -67,7 +68,8 @@
     "plugins": [
       "@oclif/plugin-help",
       "@oclif/plugin-plugins",
-      "@oclif/plugin-warn-if-update-available"
+      "@oclif/plugin-warn-if-update-available",
+      "learnpack-react"
     ]
   },
   "repository": "learnpack/learnpack-cli",

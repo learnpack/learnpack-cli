@@ -84,7 +84,11 @@ module.exports = async function(app, configObject, configManager){
         if(!exercise.graded || config.disableGrading) socket.removeAllowed("test")
         else socket.addAllowed('test')
 
-        if(!exercise.entry) socket.removeAllowed("build")
+        if(!exercise.entry){
+            socket.removeAllowed("build")
+            Console.error(`No entry was found for this exercise ${req.params.slug}, looking for the following entries from the config: `)
+            Console.log(config.entries)
+        }
         else socket.addAllowed('build')
 
         if(exercise.files.filter(f => !f.name.toLowerCase().includes("readme.") && !f.name.toLowerCase().includes("test.")).length === 0) socket.removeAllowed("reset")
