@@ -4,6 +4,7 @@ module.exports = {
         address: "http://localhost",
         editor: {
             mode: null, //[standalone, preview]
+            agent: null, //[vscode, theia]
             version: null
         },
         dirPath: './.learn',

@@ -132,7 +132,7 @@ StartCommand.flags = {
   host: flags.string({char: 'h', description: 'server host' }),
   disableGrading: flags.boolean({char: 'dg', description: 'disble grading functionality', default: false }),
   watch: flags.boolean({char: 'w', description: 'Watch for file changes', default: false }),
-  editor: flags.string({ char: 'e', description: '[standalone, gitpod]', options: ['standalone', 'gitpod'] }),
+  editor: flags.string({ char: 'e', description: '[standalone, preview]', options: ['standalone', 'preview'] }),
   version: flags.string({ char: 'v', description: 'E.g: 1.0.1', default: null }),
   grading: flags.string({ char: 'g', description: '[isolated, incremental]', options: ['isolated', 'incremental'] }),
   debug: flags.boolean({char: 'd', description: 'debugger mode for more verbage', default: false })

@@ -64,11 +64,21 @@ module.exports = async ({ grading, editor, disableGrading, version }) => {
     Console.debug("This is your configuration object: ", { ...configObj, exercises: configObj.exercises ? configObj.exercises.map(e => e.slug) : [] })
 
     // Assign default editor mode if not set already
-    if(configObj.config.editor.mode == null){
-      configObj.config.editor.mode = shell.which('gp') ? configObj.config.editor.mode = "gitpod" : "standalone"
+    if(editor != null){
+      configObj.config.editor.mode = editor
     }
 
-    if(configObj.config.editor.mode === "gitpod") Gitpod.setup(configObj.config)
+    if(configObj.config.editor.mode == null){
+      if(shell.which('gp')){
+        configObj.config.editor.mode = "preview";
+        configObj.config.editor.agent = "gitpod";
+      }else{
+        configObj.config.editor.mode = "standalone";
+        configObj.config.editor.agent = "localhost";
+      }
+    }
+
+    if(configObj.config.editor.agent === "gitpod") Gitpod.setup(configObj.config)
 
     if(version) configObj.config.editor.version = version;
     else if(configObj.config.editor.version === null){

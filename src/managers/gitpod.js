@@ -49,10 +49,10 @@ module.exports = {
       this.init();//initilize gitpod config
 
       if(this.hasGPCommand){
-        if (!fs.existsSync('./.theia')) fs.mkdirSync('./.theia');
-        if (!fs.existsSync('./.theia/settings.json')){
+        if (!fs.existsSync('./.vscode')) fs.mkdirSync('./.vscode');
+        if (!fs.existsSync('./.vscode/settings.json')){
           fs.writeFileSync(
-            './.theia/settings.json',
+            './.vscode/settings.json',
             JSON.stringify({
                 "editor.autoSave": value
             }, null, 4)

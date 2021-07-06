@@ -69,7 +69,7 @@ module.exports = {
     },
     openPreview: function(){
       let url = `${this.config.address}:${this.config.port}/preview`;
-      if(this.config.editor.mode === 'gitpod'){
+      if(this.config.editor.agent === 'gitpod'){
         url = `https://${this.config.port}-${this.config.address.substring(8)}/preview`
       }
       this.emit('openWindow', status='ready', logs=[`Opening ${url}`], inputs=[], report=[], data=url)

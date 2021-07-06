@@ -1,7 +1,7 @@
 {
   "name": "learnpack",
   "description": "Create, sell or download and take learning amazing learning packages",
-  "version": "0.0.97",
+  "version": "0.0.98",
   "author": "Alejandro Sanchez @alesanchezr",
   "bin": {
     "learnpack": "./bin/run"
@@ -17,6 +17,7 @@
     "chalk": "^4.1.0",
     "chokidar": "^3.4.0",
     "cli-ux": "^5.4.6",
+    "cors": "^2.8.5",
     "debounce": "^1.2.0",
     "dotenv": "^8.2.0",
     "enquirer": "^2.3.6",
@@ -67,8 +68,7 @@
     "plugins": [
       "@oclif/plugin-help",
       "@oclif/plugin-plugins",
-      "@oclif/plugin-warn-if-update-available",
-      "learnpack-react"
+      "@oclif/plugin-warn-if-update-available"
     ]
   },
   "repository": "learnpack/learnpack-cli",
