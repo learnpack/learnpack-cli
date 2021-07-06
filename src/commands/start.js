@@ -46,8 +46,8 @@ class StartCommand extends SessionCommand {
     // listen to socket commands
     socket.start(config, server)
 
-    socket.on("gitpod-open", (data) => {
-      Console.debug("Opening these files on gitpod: ", data)
+    socket.on("open", (data) => {
+      Console.debug("Opening these files: ", data)
       Gitpod.openFile(data.files)
     })
 
