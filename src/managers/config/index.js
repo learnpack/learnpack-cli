@@ -130,7 +130,7 @@ module.exports = async ({ grading, mode, disableGrading, version }) => {
         },
         clean: () => {
 
-          const ignore = ['config', 'exercises', "session"]
+          const ignore = ['exercises', "session"]
 
           rmSync(configObj.config.outputPath);
           rmSync(configObj.config.dirPath+"/_app");
