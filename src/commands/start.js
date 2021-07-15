@@ -53,14 +53,15 @@ class StartCommand extends SessionCommand {
     })
     
     socket.on("open_window", (data) => {
-      Console.debug(dispatcher.events.OPEN_WINDOW, data)
+      Console.debug("Opening window: ", data)
       dispatcher.enqueue(dispatcher.events.OPEN_WINDOW, data)
       socket.ready('Ready to compile...')
     })
-
+    
     socket.on("reset", (exercise) => {
       try{
         this.configManager.reset(exercise.exerciseSlug)
+        dispatcher.enqueue(dispatcher.events.RESET_EXERCISE, exercise.exerciseSlug)
         socket.ready('Ready to compile...')
       }
       catch(error){

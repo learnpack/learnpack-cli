@@ -130,8 +130,6 @@ module.exports = async ({ grading, mode, disableGrading, version }) => {
         },
         clean: () => {
 
-          const ignore = ['exercises', "session"]
-
           rmSync(configObj.config.outputPath);
           rmSync(configObj.config.dirPath+"/_app");
 
@@ -139,13 +137,12 @@ module.exports = async ({ grading, mode, disableGrading, version }) => {
           if (fs.existsSync(configObj.config.dirPath+"/app.tar.gz"))
             fs.unlinkSync(configObj.config.dirPath+"/app.tar.gz");
 
-          // clean configuration object
-          let _new = {}
-          Object.keys(configObj).forEach(key => {
-            if(!ignore.includes(key)) _new[key] = configObj[key]
-          })
+            if (fs.existsSync(configObj.config.dirPath+"/config.json"))
+            fs.unlinkSync(configObj.config.dirPath+"/config.json");
 
-          fs.writeFileSync(configObj.config.configPath, JSON.stringify(_new, null, 4))
+            if (fs.existsSync(configObj.config.dirPath+"/vscode_queue.json"))
+            fs.unlinkSync(configObj.config.dirPath+"/vscode_queue.json");
+
         },
         getExercise: (slug) => {
           const exercise = configObj.exercises.find(ex => ex.slug == slug)

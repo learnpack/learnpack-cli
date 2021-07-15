@@ -6,6 +6,7 @@ const XXH = require('xxhashjs')
 // possible events to dispatch
 let events = {
     START_EXERCISE: "start_exercise",
+    RESET_EXERCISE: "reset_exercise",
     INIT: "initializing",
     RUNNING: "configuration_loaded",
     END: "connection_ended",
