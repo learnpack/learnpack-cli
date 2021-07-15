@@ -80,7 +80,7 @@ module.exports = async ({ grading, mode, disableGrading, version }) => {
     else if(configObj.config.editor.version === null){
       const resp = await fetch('https://raw.githubusercontent.com/learnpack/coding-ide/learnpack/package.json');
       const packageJSON = await resp.json()
-      configObj.config.editor.version = packageJSON.version || "1.0.0";
+      configObj.config.editor.version = packageJSON.version || "1.0.61";
     }
 
     configObj.config.dirPath = "./" + confPath.base
