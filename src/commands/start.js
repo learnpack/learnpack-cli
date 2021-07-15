@@ -49,6 +49,7 @@ class StartCommand extends SessionCommand {
     socket.on("open", (data) => {
       Console.debug("Opening these files: ", data)
       dispatcher.enqueue(dispatcher.events.OPEN_FILES, data.files)
+      socket.ready('Ready to compile...')
     })
     
     socket.on("open_window", (data) => {
