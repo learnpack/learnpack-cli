@@ -70,7 +70,7 @@ module.exports = {
     },
     openWindow: function(url=""){
       queue.dispatcher().enqueue(queue.events.OPEN_WINDOW, url)
-      this.emit('openWindow', status='ready', logs=[`Opening ${url}`], inputs=[], report=[], data=url)
+      this.emit(queue.events.OPEN_WINDOW, status='ready', logs=[`Opening ${url}`], inputs=[], report=[], data=url)
     },
     log: function(status, messages=[],report=[], data=null){
       this.emit('log',status,messages,[],report, data);

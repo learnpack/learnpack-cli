@@ -48,12 +48,13 @@ class StartCommand extends SessionCommand {
 
     socket.on("open", (data) => {
       Console.debug("Opening these files: ", data)
-      dispatcher.enqueue("openFiles", data.files)
+      dispatcher.enqueue(dispatcher.events.OPEN_FILES, data.files)
     })
     
-    socket.on("openTutorial", (data) => {
-      Console.debug("Opening tutorial video: ", data)
-      dispatcher.enqueue(dispatcher.events.OPEN_TUTORIAL, data)
+    socket.on("open_window", (data) => {
+      Console.debug(dispatcher.events.OPEN_WINDOW, data)
+      dispatcher.enqueue(dispatcher.events.OPEN_WINDOW, data)
+      socket.ready('Ready to compile...')
     })
 
     socket.on("reset", (exercise) => {

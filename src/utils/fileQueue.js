@@ -9,7 +9,7 @@ let events = {
     INIT: "initializing",
     RUNNING: "configuration_loaded",
     END: "connection_ended",
-    OPEN_TUTORIAL: "open_tutorial",
+    OPEN_FILES: "open_files",
     OPEN_WINDOW: "open_window",
     INSTRUCTIONS_CLOSED: "instructions_closed"
 }
@@ -53,7 +53,6 @@ const loadDispatcher = (opts) => {
 
 
 const enqueue = (name, data) => {
-
     
     if(!Object.values(events).includes(name)){
         logger.debug(`Invalid event ${name}`)
@@ -64,7 +63,7 @@ const enqueue = (name, data) => {
     
     actions.push({ name, time: now(), data: data })
     logger.debug(`EMIT -> ${name}:Exporting changes to ${options.path}`)
-
+    
     return fs.writeFileSync(options.path, JSON.stringify(actions)) 
 }
 const now = () => {
