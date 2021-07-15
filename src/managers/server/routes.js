@@ -3,7 +3,7 @@ const express = require('express')
 const fs = require('fs')
 const bodyParser = require('body-parser')
 const socket = require('../socket.js');
-const gitpod = require('../gitpod');
+const queue = require("../../utils/fileQueue")
 const { detect, filterFiles } = require("../config/exercise");
 
 const withHandler = (func) => (req, res) => {
@@ -28,8 +28,21 @@ const withHandler = (func) => (req, res) => {
 module.exports = async function(app, configObject, configManager){
 
     const { config } = configObject;
+    const dispatcher = queue.dispatcher({ create: true, path: `${config.dirPath}/vscode_queue.json` })
+
     app.get('/config', withHandler((req, res)=>{
         res.json(configObject)
+    }))
+
+    /**
+     * TODO: replicate a socket action, the request payload must be passed to the socket as well
+     */
+    const jsonBodyParser = bodyParser.json()
+    app.post('/socket/:actionName', jsonBodyParser, withHandler((req, res)=>{
+        if(socket[req.params.actionName] instanceof Function){
+            socket[req.params.actionName](req.body ? req.body.data : null)
+            res.json({ "details": "Socket call executed sucessfully"})
+        }else res.status(400).json({ "details": `Socket action ${req.params.actionName} not found`})
     }))
 
     //symbolic link to maintain path compatiblity
@@ -56,7 +69,16 @@ module.exports = async function(app, configObject, configManager){
     }))
 
     app.get('/exercise/:slug', withHandler((req, res) => {
-        let exercise = configManager.getExercise(req.params.slug)
+
+        // no need to re-start exercise if it's already started
+        if(configObject.currentExercise && req.params.slug === configObject.currentExercise){
+            let exercise = configManager.getExercise(req.params.slug)
+            res.json(exercise)
+            return;
+        }
+
+        let exercise = configManager.startExercise(req.params.slug)
+        dispatcher.enqueue(dispatcher.events.START_EXERCISE, req.params.slug)
         
         // if we are in incremental grading, the entry file can by dinamically detected
         // based on the changes the student is making during the exercise

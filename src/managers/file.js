@@ -6,6 +6,7 @@ var targz = require('targz')
 let Console = require('../utils/console')
 var https = require('https')
 var fetch = require('node-fetch')
+const { InternalError } = require('../utils/errors');
 
 const decompress = (sourcePath, destinationPath) => new Promise((resolve, reject) => {
     Console.debug("Decompressing "+sourcePath)

@@ -1,5 +1,6 @@
 let connect = require('socket.io');
 let Console = require('../utils/console');
+const queue = require("../utils/fileQueue")
 
 module.exports = {
     socket: null,
@@ -67,11 +68,8 @@ module.exports = {
     reload: function(files=null, exercises=null){
       this.emit('reload', files, exercises);
     },
-    openPreview: function(){
-      let url = `${this.config.address}:${this.config.port}/preview`;
-      if(this.config.editor.agent === 'gitpod'){
-        url = `https://${this.config.port}-${this.config.address.substring(8)}/preview`
-      }
+    openWindow: function(url=""){
+      queue.dispatcher().enqueue(queue.events.OPEN_WINDOW, url)
       this.emit('openWindow', status='ready', logs=[`Opening ${url}`], inputs=[], report=[], data=url)
     },
     log: function(status, messages=[],report=[], data=null){

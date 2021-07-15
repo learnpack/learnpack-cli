@@ -19,16 +19,10 @@ class BaseCommand extends Command {
     Console.debug("These are your args: ",args);
 
     // quick fix for listening to the process termination on windows
-    if (process.platform === "win32") {
-      var rl = require("readline").createInterface({
-        input: process.stdin,
-        output: process.stdout
-      });
-
-      rl.on("SIGINT", function () {
-        process.emit("SIGINT");
-      });
-    }
+    process.on('SIGINT', function() {
+      Console.debug("Terminated (SIGINT)")
+      process.exit();
+    });
 
   }
   async finally() {

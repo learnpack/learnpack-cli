@@ -1,9 +1,8 @@
 const path = require('path')
 const fs = require('fs')
-let shell = require('shelljs')
-let Console = require('../../utils/console')
-let watch = require('../../utils/watcher')
-const Gitpod = require('../gitpod')
+const shell = require('shelljs')
+const Console = require('../../utils/console')
+const watch = require('../../utils/watcher')
 const chalk = require("chalk")
 const fetch = require('node-fetch');
 const { ValidationError, NotFoundError, InternalError } = require('../../utils/errors.js')
@@ -28,7 +27,7 @@ const getExercisesPath = (base) => {
   return possibleFileNames.find(file => fs.existsSync(file)) || null
 }
 
-module.exports = async ({ grading, editor, disableGrading, version }) => {
+module.exports = async ({ grading, mode, disableGrading, version }) => {
 
     let confPath = getConfigPath()
     Console.debug("This is the config path: ", confPath)
@@ -60,25 +59,22 @@ module.exports = async ({ grading, editor, disableGrading, version }) => {
     configObj = deepMerge(defaults || {}, configObj, { config: { grading: grading || configObj.grading, configPath: confPath.config } })
     configObj.config.outputPath = confPath.base+"/dist"
 
-
     Console.debug("This is your configuration object: ", { ...configObj, exercises: configObj.exercises ? configObj.exercises.map(e => e.slug) : [] })
 
+    // auto detect agent (if possible)
+    if(shell.which('gp')){
+      configObj.config.editor.agent = "gitpod";
+    }else if(!configObj.config.editor.agent){
+      configObj.config.editor.agent = "localhost";
+    }
+
     // Assign default editor mode if not set already
-    if(editor != null){
-      configObj.config.editor.mode = editor
+    if(mode != null){
+      configObj.config.editor.mode = mode
     }
 
-    if(configObj.config.editor.mode == null){
-      if(shell.which('gp')){
-        configObj.config.editor.mode = "preview";
-        configObj.config.editor.agent = "gitpod";
-      }else{
-        configObj.config.editor.mode = "standalone";
-        configObj.config.editor.agent = "localhost";
-      }
-    }
-
-    if(configObj.config.editor.agent === "gitpod") Gitpod.setup(configObj.config)
+    if(!configObj.config.mode) 
+      configObj.config.editor.mode = configObj.config.editor.agent === "localhost" ? "standalone": "preview";
 
     if(version) configObj.config.editor.version = version;
     else if(configObj.config.editor.version === null){
@@ -157,6 +153,19 @@ module.exports = async ({ grading, editor, disableGrading, version }) => {
 
           return exercise
         },
+        startExercise: function(slug){
+          const exercise = this.getExercise(slug)
+
+          // set config.json with current exercise
+          configObj.currentExercise = exercise.slug
+
+          this.save()
+          return exercise
+        },
+        noCurrentExercise: function(){
+          configObj.currentExercise = null
+          this.save()
+        },
         reset: (slug) => {
 
           if (!fs.existsSync(`${configObj.config.dirPath}/resets/`+slug)) throw ValidationError("Could not find the original files for "+slug)
@@ -211,8 +220,10 @@ module.exports = async ({ grading, editor, disableGrading, version }) => {
         },
         save: (config=null) => {
 
+          Console.debug("Saving configuration with: ", configObj)
+
           //remove the duplicates form the actions array
-          configObj.config.actions = [...new Set(configObj.config.actions)];
+          // configObj.config.actions = [...new Set(configObj.config.actions)];
           configObj.config.translations = [...new Set(configObj.config.translations)];
           
           fs.writeFileSync(configObj.config.dirPath+"/config.json", JSON.stringify(configObj, null, 4))
@@ -233,7 +244,7 @@ function deepMerge(...sources) {
         if (value instanceof Object && key in acc) {
           value = deepMerge(acc[key], value)
         }
-        if(value != undefined) acc = { ...acc, [key]: value }
+        if(value !== undefined) acc = { ...acc, [key]: value }
       }
     }
   }

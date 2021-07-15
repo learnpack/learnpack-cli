@@ -3,12 +3,10 @@ const {flags} = require('@oclif/command')
 const SessionCommand = require('../utils/SessionCommand')
 const Console = require('../utils/console')
 const socket = require('../managers/socket.js')
-const Gitpod = require('../managers/gitpod.js')
+const queue = require("../utils/fileQueue")
 const { download, decompress, downloadEditor } = require('../managers/file.js')
 
 const createServer = require('../managers/server')
-
-const { ValidationError, InternalError, CompilerError } = require('../utils/errors.js')
 
 class StartCommand extends SessionCommand {
   constructor(...params){
@@ -43,12 +41,19 @@ class StartCommand extends SessionCommand {
 
     const server = await createServer(configObject, this.configManager)
 
+    const dispatcher = queue.dispatcher({ create: true, path: `${config.dirPath}/vscode_queue.json` })
+
     // listen to socket commands
     socket.start(config, server)
 
     socket.on("open", (data) => {
       Console.debug("Opening these files: ", data)
-      Gitpod.openFile(data.files)
+      dispatcher.enqueue("openFiles", data.files)
+    })
+    
+    socket.on("openTutorial", (data) => {
+      Console.debug("Opening tutorial video: ", data)
+      dispatcher.enqueue(dispatcher.events.OPEN_TUTORIAL, data)
     })
 
     socket.on("reset", (exercise) => {
@@ -116,9 +121,26 @@ class StartCommand extends SessionCommand {
         return true;
     })
 
+    const terminate = () => {
+      Console.debug("Terminating Learnpack...")
+      server.terminate(() => {
+        this.configManager.noCurrentExercise()
+        dispatcher.enqueue(dispatcher.events.END)
+        process.exit();
+      })
+    }
 
-      // start watching for file changes
-      if(flags.watch) this.configManager.watchIndex((_exercises) => socket.reload(null, _exercises));
+    server.on('close', terminate);
+    process.on('SIGINT', terminate);
+    process.on('SIGTERM', terminate);
+    process.on('SIGHUP', terminate);
+
+
+    // finish the server startup
+    setTimeout(() => dispatcher.enqueue(dispatcher.events.RUNNING), 1000)
+
+    // start watching for file changes
+    if(flags.watch) this.configManager.watchIndex((_exercises) => socket.reload(null, _exercises));
 
   }
 
@@ -132,7 +154,7 @@ StartCommand.flags = {
   host: flags.string({char: 'h', description: 'server host' }),
   disableGrading: flags.boolean({char: 'dg', description: 'disble grading functionality', default: false }),
   watch: flags.boolean({char: 'w', description: 'Watch for file changes', default: false }),
-  editor: flags.string({ char: 'e', description: '[standalone, preview]', options: ['standalone', 'preview'] }),
+  mode: flags.string({ char: 'm', description: 'Load a standalone editor or just the preview to be embeded in another editor: Choices: [standalone, preview]', options: ['standalone', 'preview'] }),
   version: flags.string({ char: 'v', description: 'E.g: 1.0.1', default: null }),
   grading: flags.string({ char: 'g', description: '[isolated, incremental]', options: ['isolated', 'incremental'] }),
   debug: flags.boolean({char: 'd', description: 'debugger mode for more verbage', default: false })

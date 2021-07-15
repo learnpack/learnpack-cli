@@ -25,4 +25,5 @@ module.exports = {
             java: "app.java",
         }
     },
+    currentExercise: null
 }

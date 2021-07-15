@@ -1,6 +1,7 @@
 const express = require('express')
-let Console = require('../../utils/console')
+const Console = require('../../utils/console')
 const cors = require('cors')
+const shell = require('shelljs')
 const addRoutes = require('./routes.js')
 const cli = require("cli-ux").default
 
@@ -22,10 +23,12 @@ module.exports = async function(configObj, configManager){
     server.listen( config.port, function () {
         Console.success(`Exercises are running 😃 Open your browser to start practicing!`)
         Console.success(`\n            Open the exercise on this link:`)
-        if(config.editor.agent === 'gitpod') Console.log(`            https://${config.port}-${config.address.substring(8)}`)
-        else{
+
+        if(shell.which('gp')){
+            Console.log(`            https://${config.port}-${config.address.substring(8)}`)
+        }else{
             Console.log(`            ${config.address}:${config.port}`)
-            cli.open(`${config.address}:${config.port}`)
+            if(config.editor.mode === "standalone") cli.open(`${config.address}:${config.port}`)
         }
       })
 

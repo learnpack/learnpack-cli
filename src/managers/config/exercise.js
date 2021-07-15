@@ -20,20 +20,20 @@ const exercise = (path, position, configObject) => {
     
     /**
      * build the translation array like:
-     {
-         "us": "path/to/Readme.md",
-         "es": "path/to/Readme.es.md"
+        {
+            "us": "path/to/Readme.md",
+            "es": "path/to/Readme.es.md"
         }
-        */
-       var translations = {}
-       files.filter(file => file.toLowerCase().includes('readme')).forEach(file => {
-           const parts = file.split('.')
-           if(parts.length === 3) translations[parts[1]] = file
-           else translations["us"] = file
-        })
-        
-        // if the slug is a dot, it means there is not "exercises" folder, and its just a single README.md
-        if(slug == ".") slug = "default-index";
+    */
+    var translations = {}
+    files.filter(file => file.toLowerCase().includes('readme')).forEach(file => {
+        const parts = file.split('.')
+        if(parts.length === 3) translations[parts[1]] = file
+        else translations["us"] = file
+    })
+    
+    // if the slug is a dot, it means there is not "exercises" folder, and its just a single README.md
+    if(slug == ".") slug = "default-index";
     
     const detected = detect(configObject, files);
     return {
